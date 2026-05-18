@@ -55,10 +55,10 @@ app.add_middleware(
 # ── Config (from env vars) ────────────────────────────────────────
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER = os.getenv("SMTP_USER", "")
-SMTP_PASS = os.getenv("SMTP_PASS", "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "hello@codencode.my")
-TO_EMAIL   = os.getenv("TO_EMAIL",   "hello@codencode.my")
+SMTP_USER = os.getenv("SMTP_USER", "codencodemy@gmail.com")
+SMTP_PASS = os.getenv("SMTP_PASS", "mlas mrnc siuc adnm")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "codencodemy@gmail.com")
+TO_EMAIL   = os.getenv("TO_EMAIL",   "codencodemy@gmail.com")
 
 # ── Pydantic model ───────────────────────────────────────────────
 class Registration(BaseModel):
@@ -320,7 +320,7 @@ If you have any questions, WhatsApp us anytime:
 
 See you in class!
 Sasha & the codencode team
-hello@codencode.my | codencode.my
+codencode.my
 KL · JB · Online Zoom
     """
     student_msg.attach(MIMEText(student_body, "plain"))
