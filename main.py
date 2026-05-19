@@ -48,10 +48,10 @@ app = FastAPI(title="codencode.my", version="1.0.0")
 
 SMTP_HOST  = os.getenv("SMTP_HOST",  "smtp.gmail.com")
 SMTP_PORT  = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER  = os.getenv("SMTP_USER",  "")
-SMTP_PASS  = os.getenv("SMTP_PASS",  "")
-FROM_EMAIL = os.getenv("FROM_EMAIL", "hello@codencode.my")
-TO_EMAIL   = os.getenv("TO_EMAIL",   "hello@codencode.my")
+SMTP_USER  = os.getenv("SMTP_USER",  "codencodemy@gmail.com")
+SMTP_PASS  = os.getenv("SMTP_PASS",  "mlas mrnc siuc adnm")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "codencodemy@gmail.com")
+TO_EMAIL   = os.getenv("TO_EMAIL",   "codencodemy@gmail.com")
 
 STATIC_DIR = Path(__file__).parent / "static"
 if STATIC_DIR.exists():
