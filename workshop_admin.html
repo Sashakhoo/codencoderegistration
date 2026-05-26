@@ -465,6 +465,62 @@ textarea { resize:vertical; min-height:80px; line-height:1.6; }
 .sw-eve    { background:linear-gradient(135deg,#200040,#38006a); }
 .sw-custom { background:linear-gradient(135deg,#1a1a2e,#16213e); }
 
+/* APP THEME */
+.theme-toggle {
+  border: 1px solid var(--glass-border);
+  background: none;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+.theme-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+body.theme-light {
+  --black: #f6fbfb;
+  --navy: #eef7f7;
+  --navy-light: #ffffff;
+  --navy-mid: #f1f8f8;
+  --cyan: #008f7a;
+  --cyan2: #0078a8;
+  --cyan-glow: rgba(0,143,122,0.18);
+  --cyan-dim: rgba(0,143,122,0.08);
+  --cyan-border: rgba(0,105,90,0.24);
+  --gold: #9a6a00;
+  --gold-dim: rgba(154,106,0,0.1);
+  --red: #bd2146;
+  --red-dim: rgba(189,33,70,0.1);
+  --green: #008a61;
+  --green-dim: rgba(0,138,97,0.1);
+  --white: #102026;
+  --muted: #52666e;
+  --glass: rgba(255,255,255,0.88);
+  --glass-border: rgba(0,105,90,0.18);
+}
+body.theme-light::before {
+  background-image:
+    linear-gradient(rgba(0,105,90,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,105,90,0.08) 1px, transparent 1px);
+}
+body.theme-light .sidebar,
+body.theme-light .topbar,
+body.theme-light .tab-nav,
+body.theme-light .toast,
+body.theme-light .modal { background: rgba(255,255,255,0.94); }
+body.theme-light input[type=text],
+body.theme-light input[type=date],
+body.theme-light input[type=time],
+body.theme-light input[type=url],
+body.theme-light select,
+body.theme-light textarea {
+  background: rgba(255,255,255,0.92);
+  color: var(--white);
+  border-color: rgba(0,105,90,0.2);
+}
+body.theme-light select option { background:#fff; color:#102026; }
+
 /* RESPONSIVE */
 @media(max-width:768px) {
   .sidebar { display:none; }
@@ -507,6 +563,7 @@ textarea { resize:vertical; min-height:80px; line-height:1.6; }
       <div class="topbar-title" id="topTitle">workshop <span class="cyan">manager</span></div>
     </div>
     <div class="topbar-right">
+      <button class="theme-toggle" id="themeToggle" type="button" onclick="toggleTheme()">Bright</button>
       <button class="btn btn-ghost btn-sm" onclick="window.open('/workshop','_blank')">↗ VIEW PORTAL</button>
       <button class="btn btn-green btn-sm" id="pubBtn" style="display:none" onclick="togglePublish()">PUBLISH</button>
       <button class="btn btn-red btn-sm" id="delBtn" style="display:none" onclick="deleteWs()">DELETE</button>
@@ -774,6 +831,21 @@ textarea { resize:vertical; min-height:80px; line-height:1.6; }
 </div>
 
 <script>
+function applyTheme(mode) {
+  const light = mode === 'light';
+  document.body.classList.toggle('theme-light', light);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = light ? 'Dark' : 'Bright';
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+  localStorage.setItem('cc_theme', next);
+  applyTheme(next);
+}
+
+applyTheme(localStorage.getItem('cc_theme') || 'dark');
+
 // ════════════════════════════════════════════════════════
 // DEMO DATA (localStorage-backed — swaps to real API on learn.codencode.my)
 // ════════════════════════════════════════════════════════

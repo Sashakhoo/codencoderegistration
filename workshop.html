@@ -574,6 +574,65 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
 }
 .toast.show { transform:translateY(0); opacity:1; }
 
+/* THEME */
+.theme-toggle {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1000;
+  border: 1px solid var(--cyan-border);
+  background: var(--glass);
+  color: var(--white);
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  backdrop-filter: blur(16px);
+}
+.theme-toggle:hover { border-color: var(--cyan); color: var(--cyan); }
+body.theme-light {
+  --black: #f6fbfb;
+  --navy: #eef7f7;
+  --cyan: #008f7a;
+  --cyan2: #0078a8;
+  --cyan-glow: rgba(0,143,122,0.18);
+  --cyan-dim: rgba(0,143,122,0.08);
+  --cyan-border: rgba(0,105,90,0.24);
+  --white: #102026;
+  --muted: #52666e;
+  --glass: rgba(255,255,255,0.88);
+  --glass-border: rgba(0,105,90,0.18);
+}
+body.theme-light::before {
+  background-image:
+    linear-gradient(rgba(0,105,90,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,105,90,0.08) 1px, transparent 1px);
+}
+body.theme-light nav,
+body.theme-light .success-overlay { background: rgba(246,251,251,0.92); }
+body.theme-light .info-chips { background: rgba(255,255,255,0.82); }
+body.theme-light input[type=text],
+body.theme-light input[type=email],
+body.theme-light input[type=tel],
+body.theme-light select,
+body.theme-light textarea {
+  background: rgba(255,255,255,0.92);
+  color: var(--white);
+  border-color: rgba(0,105,90,0.2);
+}
+body.theme-light select option { background:#fff; color:#102026; }
+body.theme-light .card-top.theme-python,
+body.theme-light .card-top.theme-ml,
+body.theme-light .card-top.theme-vibe,
+body.theme-light .card-top.theme-data,
+body.theme-light .card-top.theme-eve {
+  background: linear-gradient(135deg,#dff8f4,#edf7ff);
+}
+body.theme-light .toast { background: rgba(255,255,255,0.95); }
+
 /* RESPONSIVE */
 @media(max-width:600px) {
   nav { padding:14px 20px; }
@@ -591,6 +650,8 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
 </style>
 </head>
 <body>
+
+<button class="theme-toggle" id="themeToggle" type="button" onclick="toggleTheme()">Bright</button>
 
 <div class="glow-orb tl"></div>
 <div class="glow-orb br"></div>
@@ -918,6 +979,21 @@ textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
 <div class="toast" id="toast"><span>✓</span><span id="toastMsg"></span></div>
 
 <script>
+function applyTheme(mode) {
+  const light = mode === 'light';
+  document.body.classList.toggle('theme-light', light);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = light ? 'Dark' : 'Bright';
+}
+
+function toggleTheme() {
+  const next = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+  localStorage.setItem('cc_theme', next);
+  applyTheme(next);
+}
+
+applyTheme(localStorage.getItem('cc_theme') || 'dark');
+
 // ── DATA ──────────────────────────────────────────────────────────────────
 const WS_DATA = [
   {
