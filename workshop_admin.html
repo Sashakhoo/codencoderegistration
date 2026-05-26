@@ -679,7 +679,7 @@ textarea { resize:vertical; min-height:80px; line-height:1.6; }
           <table class="reg-table">
             <thead><tr>
               <th>#</th><th>NAME</th><th>EMAIL</th><th>OCCUPATION</th>
-              <th>INDUSTRY</th><th>EXPERIENCE</th><th>LANGUAGE</th><th>REFERRAL</th><th>DATE</th>
+              <th>INDUSTRY</th><th>EXPERIENCE</th><th>GOALS / MOTIVATION</th><th>LANGUAGE</th><th>REFERRAL</th><th>DATE</th>
             </tr></thead>
             <tbody id="regBody"></tbody>
           </table>
@@ -1232,6 +1232,7 @@ function renderReg() {
       <td>${r.occupation||'—'}</td>
       <td style="color:var(--muted);font-size:0.78rem">${r.industry||'—'}</td>
       <td><span class="reg-tag">${r.experience_level||'—'}</span></td>
+      <td style="color:var(--muted);font-size:0.76rem;max-width:280px;white-space:normal;line-height:1.45">${r.motivation||'—'}</td>
       <td>${r.preferred_language||'—'}</td>
       <td style="color:var(--muted);font-size:0.76rem">${r.referral_source||'—'}</td>
       <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.66rem">${r.registered_at?r.registered_at.substring(0,10):'—'}</td>
@@ -1241,13 +1242,14 @@ function renderReg() {
 
 function exportCSV() {
   if (!curReg.length) { toast('No registrations to export.','err'); return; }
-  const headers = ['#','Name','Email','Occupation','Industry','Experience','Language','Referral','Date'];
-  const rows = curReg.map((r,i)=>[i+1,r.student_name||'',r.email||'',r.occupation||'',r.industry||'',r.experience_level||'',r.preferred_language||'',r.referral_source||'',r.registered_at?r.registered_at.substring(0,10):'']);
+  const headers = ['#','Name','Email','Occupation','Industry','Experience','Goals / Motivation','Language','Referral','Date'];
+  const rows = curReg.map((r,i)=>[i+1,r.student_name||'',r.email||'',r.occupation||'',r.industry||'',r.experience_level||'',r.motivation||'',r.preferred_language||'',r.referral_source||'',r.registered_at?r.registered_at.substring(0,10):'']);
   const csv = [headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a=document.createElement('a');
-  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8;'}));
   a.download=`registrations_${current.id}_${new Date().toISOString().substring(0,10)}.csv`;
   a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
   toast('CSV exported ✓');
 }
 
