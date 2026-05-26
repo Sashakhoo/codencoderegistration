@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>codencode Academy — Workshop Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #050810;
+  --navy: #070d1a;
+  --cyan: #00e5c8;
+  --cyan2: #00c4ff;
+  --cyan-glow: rgba(0,229,200,0.35);
+  --cyan-dim: rgba(0,229,200,0.08);
+  --cyan-border: rgba(0,229,200,0.25);
+  --white: #e8f4f8;
+  --muted: #5a7a8a;
+  --glass: rgba(10,20,35,0.72);
+  --glass-border: rgba(0,229,200,0.18);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── GRID TEXTURE ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,200,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,200,0.04) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── AMBIENT GLOWS ── */
+.glow-orb {
+  position: fixed; border-radius: 50%;
+  filter: blur(90px); pointer-events: none; z-index: 0;
+}
+.glow-orb.tl { width:500px;height:500px;top:-180px;left:-180px;background:radial-gradient(circle,rgba(0,229,200,0.12),transparent 70%); }
+.glow-orb.br { width:400px;height:400px;bottom:-150px;right:-150px;background:radial-gradient(circle,rgba(0,196,255,0.10),transparent 70%); }
+.glow-orb.mid { width:600px;height:300px;top:40%;left:50%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(0,229,200,0.05),transparent 70%); }
+
+/* ── NAV ── */
+nav {
+  position: sticky; top:0; z-index:100;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 16px 40px;
+  background: rgba(5,8,16,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+}
+.nav-logo {
+  font-family: 'Black Ops One', cursive;
+  font-size: 1.3rem;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan-glow), 2px 0 0 rgba(255,100,200,0.4), -2px 0 0 rgba(0,196,255,0.4);
+  letter-spacing: 1px;
+}
+.nav-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 20px;
+  border: 1px solid var(--cyan-border);
+  background: var(--cyan-dim);
+  color: var(--cyan);
+}
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  text-align: center;
+  padding: 64px 20px 48px;
+}
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 18px;
+  display: inline-flex; align-items:center; gap:10px;
+}
+.hero-eyebrow::before, .hero-eyebrow::after {
+  content:''; width:32px; height:1px; background: linear-gradient(90deg,transparent,var(--cyan));
+}
+.hero-eyebrow::after { transform:scaleX(-1); }
+
+.hero h1 {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(2.8rem, 8vw, 5.5rem);
+  line-height: 1;
+  letter-spacing: -1px;
+  text-transform: lowercase;
+  color: var(--white);
+  text-shadow:
+    0 0 40px rgba(0,229,200,0.3),
+    3px 0 0 rgba(255,80,180,0.45),
+    -3px 0 0 rgba(0,196,255,0.45);
+  margin-bottom: 16px;
+}
+.hero h1 .cyan { color: var(--cyan); }
+.hero-sub {
+  font-size: 0.95rem; color: var(--muted); line-height: 1.7;
+  max-width: 420px; margin: 0 auto 12px;
+}
+
+/* ── MAIN FORM WRAPPER ── */
+.form-wrapper {
+  position: relative; z-index: 1;
+  max-width: 660px; margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+/* ── GLASS CARD ── */
+.glass-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 32px 36px;
+  margin-bottom: 16px;
+  backdrop-filter: blur(24px);
+  position: relative;
+  overflow: hidden;
+}
+.glass-card::before {
+  content:'';
+  position:absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0.6;
+}
+.glass-card::after {
+  content:'';
+  position:absolute; top:-80px; right:-80px;
+  width:220px; height:220px;
+  background: radial-gradient(circle, rgba(0,229,200,0.06), transparent 70%);
+  pointer-events:none;
+}
+
+.card-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 22px;
+  display: flex; align-items:center; gap:10px;
+}
+.card-label::after {
+  content:''; flex:1; height:1px;
+  background: linear-gradient(90deg, var(--cyan-border), transparent);
+}
+
+/* ── FORM FIELDS ── */
+.field { margin-bottom: 18px; }
+.field label {
+  display: block; font-size: 0.75rem; font-weight: 500;
+  color: #5a8a9a; margin-bottom: 8px; letter-spacing: 0.4px;
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+input[type=text], input[type=email], input[type=tel], select, textarea {
+  width: 100%;
+  background: rgba(0,229,200,0.04);
+  border: 1px solid rgba(0,229,200,0.14);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cyan);
+  background: rgba(0,229,200,0.07);
+  box-shadow: 0 0 0 3px rgba(0,229,200,0.1), 0 0 20px rgba(0,229,200,0.08);
+}
+input::placeholder, textarea::placeholder { color: rgba(90,120,138,0.7); }
+select { cursor: pointer; }
+select option { background: #0d1825; color: var(--white); }
+textarea { resize: vertical; min-height: 88px; line-height: 1.65; }
+
+/* ── WORKSHOP SELECTOR ── */
+.workshop-grid {
+  display: flex; flex-direction: column; gap: 10px;
+}
+
+.ws-option {
+  position: relative;
+  cursor: pointer;
+}
+.ws-option input[type=radio] { display: none; }
+
+.ws-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 16px 20px;
+  background: rgba(0,229,200,0.04);
+  border: 1px solid rgba(0,229,200,0.12);
+  border-radius: 12px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.ws-option:hover .ws-card {
+  border-color: rgba(0,229,200,0.35);
+  background: rgba(0,229,200,0.07);
+}
+.ws-option input:checked ~ .ws-card {
+  border-color: var(--cyan);
+  background: rgba(0,229,200,0.1);
+  box-shadow: 0 0 0 1px rgba(0,229,200,0.2), 0 4px 20px rgba(0,229,200,0.12);
+}
+
+.ws-radio-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,229,200,0.35);
+  flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex; align-items:center; justify-content:center;
+}
+.ws-option input:checked ~ .ws-card .ws-radio-dot {
+  border-color: var(--cyan);
+  background: var(--cyan);
+}
+.ws-radio-dot::after {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background: var(--navy); opacity:0; transition:opacity 0.2s;
+}
+.ws-option input:checked ~ .ws-card .ws-radio-dot::after { opacity:1; }
+
+.ws-body { flex:1; min-width:0; }
+.ws-title {
+  font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.ws-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem; color: var(--muted); letter-spacing: 0.5px;
+}
+.ws-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 1.5px; padding: 3px 8px;
+  border-radius: 20px; flex-shrink: 0;
+}
+.badge-open { background:rgba(0,229,200,0.12); color:var(--cyan); border:1px solid rgba(0,229,200,0.3); }
+.badge-eve  { background:rgba(245,200,66,0.12); color:#f5c842; border:1px solid rgba(245,200,66,0.3); }
+.badge-online { background:rgba(0,196,255,0.12); color:#00c4ff; border:1px solid rgba(0,196,255,0.3); }
+
+/* ── WEEK PILL (matching poster style) ── */
+.week-pill {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem; letter-spacing: 1px;
+  padding: 3px 10px; border-radius: 4px;
+  background: var(--cyan);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+/* ── TERMS ── */
+.terms-row {
+  display: flex; align-items: flex-start; gap: 12px; margin-top: 6px;
+}
+.terms-row input[type=checkbox] {
+  width:18px; height:18px; margin-top:2px; flex-shrink:0;
+  accent-color: var(--cyan); cursor:pointer;
+}
+.terms-row label { font-size:0.8rem; color:var(--muted); line-height:1.55; cursor:pointer; }
+.terms-row a { color:var(--cyan); text-decoration:none; }
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--cyan), #00b8d4);
+  color: var(--navy);
+  border: none; border-radius: 12px;
+  font-family: 'Black Ops One', cursive;
+  font-size: 1rem; letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  margin-top: 24px;
+  position: relative; overflow:hidden;
+}
+.btn-submit::before {
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,229,200,0.45), 0 0 60px rgba(0,229,200,0.15);
+}
+.btn-submit:active { transform: translateY(0); }
+
+/* ── INFO CHIPS (bottom of poster) ── */
+.info-chips {
+  display: flex; gap: 0;
+  background: rgba(10,20,30,0.8);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 16px;
+  backdrop-filter: blur(12px);
+}
+.chip {
+  flex:1; text-align:center; padding:16px 10px;
+  border-right: 1px solid var(--glass-border);
+  font-size: 0.72rem; color: var(--muted);
+}
+.chip:last-child { border-right:none; }
+.chip-icon { font-size:1.4rem; margin-bottom:5px; }
+.chip strong { display:block; font-size:0.78rem; color:var(--white); font-weight:600; }
+
+/* ── SUCCESS OVERLAY ── */
+.success-overlay {
+  display:none; position:fixed; inset:0;
+  background: var(--black); z-index:999;
+  flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; gap:20px;
+}
+.success-overlay.show { display:flex; }
+.success-glyph {
+  width:80px; height:80px; border-radius:50%;
+  border:2px solid var(--cyan);
+  background: rgba(0,229,200,0.1);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.2rem;
+  box-shadow: 0 0 40px rgba(0,229,200,0.3);
+  animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.success-overlay h2 { font-family:'Black Ops One',cursive; font-size:2rem; color:var(--cyan); }
+.success-overlay p { color:var(--muted); font-size:0.9rem; }
+
+/* ── PAGE 2: WORKSHOP LIST ── */
+.page { display:none; }
+.page.active { display:block; }
+
+.page-hero {
+  position:relative; z-index:1;
+  padding: 52px 40px 36px;
+  max-width: 960px; margin:0 auto;
+}
+.page-hero h2 {
+  font-family: 'Black Ops One', cursive;
+  font-size: clamp(2rem,5vw,3.2rem);
+  text-shadow: 3px 0 0 rgba(255,80,180,0.4), -3px 0 0 rgba(0,196,255,0.4);
+  margin-bottom:6px;
+}
+.page-hero h2 .cyan { color:var(--cyan); }
+.user-pill {
+  display:inline-flex; align-items:center; gap:10px;
+  background:rgba(0,229,200,0.07); border:1px solid var(--cyan-border);
+  border-radius:30px; padding:6px 16px 6px 8px;
+  margin-bottom:24px; font-size:0.82rem;
+}
+.u-avatar {
+  width:28px; height:28px; border-radius:50%;
+  background: linear-gradient(135deg, var(--cyan), #00c4ff);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Black Ops One',cursive; font-size:0.75rem; color:var(--navy);
+}
+
+.ws-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px,1fr));
+  gap: 18px;
+  max-width: 960px; margin:0 auto; padding:0 40px 80px;
+  position:relative; z-index:1;
+}
+
+.ws-list-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px; overflow:hidden;
+  cursor:pointer; position:relative;
+  backdrop-filter: blur(20px);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.ws-list-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--cyan);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 30px rgba(0,229,200,0.1);
+}
+.ws-list-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:0.5;
+}
+.card-top {
+  height:88px; position:relative; overflow:hidden;
+  display:flex; align-items:flex-end; padding:12px 16px;
+}
+.card-top.theme-python { background:linear-gradient(135deg,#020c14,#002a3a); }
+.card-top.theme-ml     { background:linear-gradient(135deg,#08020e,#1a0030); }
+.card-top.theme-vibe   { background:linear-gradient(135deg,#021408,#003820); }
+.card-top.theme-data   { background:linear-gradient(135deg,#140a02,#2e1600); }
+.card-top.theme-eve    { background:linear-gradient(135deg,#0a0414,#200040); }
+
+.card-big-emoji {
+  position:absolute; right:12px; bottom:-8px;
+  font-size:3.5rem; opacity:0.25; line-height:1;
+}
+.card-enrolled-tag {
+  font-family:'Space Mono',monospace; font-size:0.55rem; letter-spacing:2px;
+  background:rgba(0,229,200,0.15); border:1px solid rgba(0,229,200,0.35);
+  color:var(--cyan); padding:4px 10px; border-radius:20px;
+}
+.card-body { padding:18px 18px 16px; }
+.card-date {
+  font-family:'Space Mono',monospace; font-size:0.6rem;
+  color:var(--cyan); letter-spacing:1px; margin-bottom:6px;
+}
+.card-title { font-size:0.9rem; font-weight:700; line-height:1.3; margin-bottom:10px; }
+.card-chips { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.card-chip {
+  font-size:0.68rem; color:var(--muted);
+  display:flex; align-items:center; gap:4px;
+}
+.card-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:12px; border-top:1px solid rgba(0,229,200,0.1);
+}
+.card-mat-count {
+  font-family:'Space Mono',monospace; font-size:0.62rem; color:#f5c842;
+}
+.btn-open {
+  font-family:'Space Mono',monospace; font-size:0.6rem; letter-spacing:1px;
+  padding:6px 14px; border-radius:8px;
+  background:rgba(0,229,200,0.1); color:var(--cyan);
+  border:1px solid var(--cyan-border); cursor:pointer;
+  transition:background 0.2s, box-shadow 0.2s;
+}
+.btn-open:hover { background:var(--cyan); color:var(--navy); box-shadow:0 0 16px rgba(0,229,200,0.3); }
+
+/* ── PAGE 3: MATERIALS ── */
+.mat-header {
+  max-width:960px; margin:0 auto; padding:36px 40px 0;
+  position:relative; z-index:1;
+}
+.back-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:1.5px;
+  color:var(--muted); background:none;
+  border:1px solid var(--glass-border); padding:7px 14px; border-radius:8px;
+  cursor:pointer; margin-bottom:24px;
+  transition:color 0.2s,border-color 0.2s;
+}
+.back-btn:hover { color:var(--cyan); border-color:var(--cyan); }
+
+.ws-title-block {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  flex-wrap:wrap; gap:16px; margin-bottom:28px;
+  padding-bottom:24px; border-bottom:1px solid rgba(0,229,200,0.12);
+}
+.ws-title-block h2 {
+  font-family:'Black Ops One',cursive;
+  font-size:clamp(1.3rem,3vw,2rem);
+  text-shadow:2px 0 0 rgba(255,80,180,0.35),-2px 0 0 rgba(0,196,255,0.35);
+  margin-bottom:8px;
+}
+.ws-meta-row { display:flex; gap:14px; flex-wrap:wrap; }
+.ws-meta-tag {
+  font-family:'Space Mono',monospace; font-size:0.62rem;
+  color:var(--muted); letter-spacing:0.5px;
+}
+.ws-meta-tag .v { color:var(--cyan); }
+
+.prog-wrap { min-width:180px; text-align:right; }
+.prog-label { font-family:'Space Mono',monospace; font-size:0.6rem; color:#f5c842; letter-spacing:1px; margin-bottom:6px; }
+.prog-bar { height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--cyan),#00c4ff); border-radius:3px; transition:width 0.5s ease; }
+
+.mat-content { max-width:960px; margin:0 auto; padding:0 40px 80px; }
+
+.sec-head {
+  display:flex; align-items:center; gap:12px;
+  margin:32px 0 14px;
+}
+.sec-head h3 {
+  font-family:'Space Mono',monospace; font-size:0.6rem;
+  color:var(--muted); letter-spacing:3px; text-transform:uppercase;
+}
+.sec-head::after { content:''; flex:1; height:1px; background:rgba(0,229,200,0.1); }
+
+/* Announcement cards */
+.ann-card {
+  background:rgba(0,229,200,0.05);
+  border:1px solid rgba(245,200,66,0.2);
+  border-left:3px solid #f5c842;
+  border-radius:10px; padding:14px 18px;
+  display:flex; gap:14px; margin-bottom:10px;
+}
+.ann-icon { font-size:1.2rem; flex-shrink:0; }
+.ann-title { font-size:0.85rem; font-weight:600; margin-bottom:3px; }
+.ann-body { font-size:0.77rem; color:var(--muted); line-height:1.55; }
+
+/* Timeline */
+.timeline { position:relative; padding-left:26px; }
+.timeline::before { content:''; position:absolute; left:6px; top:8px; bottom:8px; width:2px; background:rgba(0,229,200,0.15); }
+.tl-item { position:relative; margin-bottom:18px; }
+.tl-item::before {
+  content:''; position:absolute; left:-24px; top:7px;
+  width:10px; height:10px; border-radius:50%;
+  border:2px solid var(--cyan); background:var(--navy);
+}
+.tl-time { font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--cyan); letter-spacing:1px; margin-bottom:3px; }
+.tl-title { font-size:0.88rem; font-weight:600; margin-bottom:2px; }
+.tl-desc { font-size:0.76rem; color:var(--muted); }
+
+/* Materials list */
+.mat-list { display:flex; flex-direction:column; gap:9px; }
+.mat-item {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 18px;
+  background:var(--glass); border:1px solid var(--glass-border);
+  border-radius:12px; cursor:pointer;
+  transition:border-color 0.2s, transform 0.15s;
+  position:relative; overflow:hidden;
+  backdrop-filter:blur(16px);
+}
+.mat-item:hover { border-color:rgba(0,229,200,0.4); transform:translateX(4px); }
+.mat-item.done { border-color:rgba(0,229,200,0.35); }
+.mat-item.done::before {
+  content:''; position:absolute; left:0; top:0; bottom:0;
+  width:3px; background:var(--cyan); border-radius:2px 0 0 2px;
+}
+.mat-ico {
+  width:40px; height:40px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center; font-size:1.15rem; flex-shrink:0;
+}
+.mat-ico.pdf   { background:rgba(239,68,68,0.12); }
+.mat-ico.slide { background:rgba(245,200,66,0.12); }
+.mat-ico.video { background:rgba(168,85,247,0.12); }
+.mat-ico.code  { background:rgba(0,229,200,0.1);   }
+.mat-ico.quiz  { background:rgba(16,185,129,0.12); }
+.mat-ico.link  { background:rgba(0,196,255,0.1);   }
+
+.mat-info { flex:1; min-width:0; }
+.mat-name { font-size:0.88rem; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mat-sub  { font-size:0.7rem; color:var(--muted); display:flex; align-items:center; gap:6px; font-family:'Space Mono',monospace; }
+.mat-acts { display:flex; align-items:center; gap:9px; flex-shrink:0; }
+
+.chk-circle {
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid rgba(0,229,200,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.7rem; transition:all 0.2s; cursor:pointer;
+}
+.mat-item.done .chk-circle { border-color:var(--cyan); background:var(--cyan); color:var(--navy); }
+.dl-btn {
+  font-family:'Space Mono',monospace; font-size:0.58rem; letter-spacing:0.5px;
+  padding:5px 10px; border:1px solid rgba(0,229,200,0.2);
+  background:none; color:var(--muted); border-radius:6px; cursor:pointer;
+  transition:all 0.2s;
+}
+.dl-btn:hover { border-color:var(--cyan); color:var(--cyan); }
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:rgba(10,20,30,0.92); border:1px solid var(--cyan);
+  border-radius:10px; padding:11px 18px; font-size:0.8rem;
+  display:flex; align-items:center; gap:8px; z-index:999;
+  backdrop-filter:blur(12px);
+  transform:translateY(60px); opacity:0;
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* RESPONSIVE */
+@media(max-width:600px) {
+  nav { padding:14px 20px; }
+  .hero { padding:48px 16px 36px; }
+  .form-wrapper { padding:0 14px 60px; }
+  .glass-card { padding:24px 20px; }
+  .field-row, .field-row-3 { grid-template-columns:1fr; }
+  .page-hero { padding:36px 20px 24px; }
+  .ws-grid { padding:0 20px 60px; }
+  .mat-header { padding:28px 20px 0; }
+  .mat-content { padding:0 20px 60px; }
+  .info-chips { flex-wrap:wrap; }
+  .chip { min-width:50%; border-bottom:1px solid var(--glass-border); }
+}
+</style>
+</head>
+<body>
+
+<div class="glow-orb tl"></div>
+<div class="glow-orb br"></div>
+<div class="glow-orb mid"></div>
+
+<!-- ══════════════ PAGE 1: REGISTER ══════════════ -->
+<div class="page active" id="page-register">
+  <nav>
+    <div class="nav-logo">codencode</div>
+    <div class="nav-pill">workshop portal</div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-eyebrow">one day workshop</div>
+    <h1>register &amp;<br><span class="cyan">access</span><br>materials</h1>
+    <p class="hero-sub">Register once to unlock all slides, exercises, code files, and resources for your workshop.</p>
+  </div>
+
+  <div class="form-wrapper">
+
+    <!-- Card 1: Personal Info -->
+    <div class="glass-card">
+      <div class="card-label">01 &mdash; personal info</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>First Name *</label>
+          <input type="text" id="f_first" placeholder="e.g. Ahmad">
+        </div>
+        <div class="field">
+          <label>Last Name *</label>
+          <input type="text" id="f_last" placeholder="e.g. Faiz">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Email Address *</label>
+        <input type="email" id="f_email" placeholder="you@email.com">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Phone Number</label>
+          <input type="tel" id="f_phone" placeholder="+60 12-xxx xxxx">
+        </div>
+        <div class="field">
+          <label>Age Range *</label>
+          <select id="f_age">
+            <option value="" disabled selected>Select range</option>
+            <option>Under 18</option>
+            <option>18–24</option>
+            <option>25–34</option>
+            <option>35–44</option>
+            <option>45+</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Background -->
+    <div class="glass-card">
+      <div class="card-label">02 &mdash; your background</div>
+
+      <div class="field">
+        <label>Current Occupation * <span style="color:var(--muted);font-size:0.72rem">(tell us in your own words)</span></label>
+        <input type="text" id="f_occupation" placeholder="e.g. University student, Software engineer, Freelance designer…">
+      </div>
+
+      <div class="field">
+        <label>Industry / Field</label>
+        <select id="f_industry">
+          <option value="" disabled selected>Select your industry</option>
+          <option>Technology & Software</option>
+          <option>Engineering (Electrical / Mechanical / Civil)</option>
+          <option>Finance & Banking</option>
+          <option>Healthcare & Medical</option>
+          <option>Education & Academia</option>
+          <option>Manufacturing & Industrial</option>
+          <option>Marketing & Creative</option>
+          <option>Law & Legal</option>
+          <option>Government & Public Sector</option>
+          <option>Retail & E-Commerce</option>
+          <option>Logistics & Supply Chain</option>
+          <option>Oil & Gas / Energy</option>
+          <option>Architecture & Construction</option>
+          <option>Hospitality & Tourism</option>
+          <option>Student (no industry yet)</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Programming Experience *</label>
+        <select id="f_exp">
+          <option value="" disabled selected>Select your level</option>
+          <option>Complete beginner — never coded before</option>
+          <option>Beginner — tried some tutorials online</option>
+          <option>Intermediate — built small projects myself</option>
+          <option>Advanced — professional / work experience</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Why do you want to join this workshop? *</label>
+        <textarea id="f_motivation" placeholder="Tell us what you hope to learn, what you want to build, or what's driving you to start coding…"></textarea>
+      </div>
+    </div>
+
+    <!-- Card 3: Select Workshop -->
+    <div class="glass-card">
+      <div class="card-label">03 &mdash; select your workshop</div>
+
+      <div class="workshop-grid">
+
+        <label class="ws-option">
+          <input type="radio" name="workshop" value="0">
+          <div class="ws-card">
+            <div class="ws-radio-dot"></div>
+            <div class="ws-body">
+              <div class="ws-title">🐍 Python for Beginners — Bootcamp <span class="ws-badge badge-open">OPEN</span></div>
+              <div class="ws-meta">SAT, 31 MAY 2026 · 9:00 AM – 5:00 PM · KL</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="ws-option">
+          <input type="radio" name="workshop" value="1">
+          <div class="ws-card">
+            <div class="ws-radio-dot"></div>
+            <div class="ws-body">
+              <div class="ws-title">🤖 Intro to Machine Learning <span class="ws-badge badge-open">OPEN</span></div>
+              <div class="ws-meta">SAT, 14 JUN 2026 · 9:00 AM – 5:00 PM · JB</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="ws-option">
+          <input type="radio" name="workshop" value="2">
+          <div class="ws-card">
+            <div class="ws-radio-dot"></div>
+            <div class="ws-body">
+              <div class="ws-title">✨ Vibe Coding with AI Tools <span class="ws-badge badge-online">ONLINE</span></div>
+              <div class="ws-meta">SAT, 28 JUN 2026 · 10:00 AM – 4:00 PM · Zoom</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="ws-option">
+          <input type="radio" name="workshop" value="3">
+          <div class="ws-card">
+            <div class="ws-radio-dot"></div>
+            <div class="ws-body">
+              <div class="ws-title">📊 Python for Data Analysis <span class="ws-badge badge-open">OPEN</span></div>
+              <div class="ws-meta">SAT, 12 JUL 2026 · 9:00 AM – 5:00 PM · KL</div>
+            </div>
+          </div>
+        </label>
+
+        <label class="ws-option">
+          <input type="radio" name="workshop" value="4">
+          <div class="ws-card">
+            <div class="ws-radio-dot"></div>
+            <div class="ws-body">
+              <div class="ws-title">🌙 Foon Yew Evening School — Python Night <span class="ws-badge badge-eve">EVENING</span></div>
+              <div class="ws-meta">EVERY TUE · 7:30 PM – 9:30 PM · FOON YEW, JB</div>
+            </div>
+          </div>
+        </label>
+
+      </div>
+    </div>
+
+    <!-- Card 4: Preferences -->
+    <div class="glass-card">
+      <div class="card-label">04 &mdash; preferences</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Preferred Language</label>
+          <select id="f_lang">
+            <option>English</option>
+            <option>Bahasa Melayu</option>
+            <option>中文 (Mandarin)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>How did you hear about us?</label>
+          <select id="f_ref">
+            <option value="" disabled selected>Select one</option>
+            <option>Instagram / Facebook</option>
+            <option>LinkedIn</option>
+            <option>小红书 (XHS)</option>
+            <option>Friend / Word of mouth</option>
+            <option>Google Search</option>
+            <option>WhatsApp</option>
+            <option>School / Teacher</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="terms-row">
+        <input type="checkbox" id="f_terms">
+        <label for="f_terms">I agree to the <a href="#">Terms of Use</a> and consent to codencode Academy storing my registration data for workshop access purposes.</label>
+      </div>
+
+      <button class="btn-submit" onclick="submitReg()">REGISTER &amp; ACCESS MATERIALS →</button>
+    </div>
+
+    <div class="info-chips">
+      <div class="chip"><div class="chip-icon">🏅</div><strong>Certificate</strong>of completion</div>
+      <div class="chip"><div class="chip-icon">🖥️</div><strong>LMS 1 Year</strong>full access</div>
+      <div class="chip"><div class="chip-icon">👨‍🏫</div><strong>Teacher</strong>support</div>
+      <div class="chip"><div class="chip-icon">📁</div><strong>Projects &</strong>portfolio</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-glyph">✓</div>
+  <h2>you're in!</h2>
+  <p id="successMsg">Loading your workshop portal…</p>
+</div>
+
+<!-- ══════════════ PAGE 2: WORKSHOP LIST ══════════════ -->
+<div class="page" id="page-workshops">
+  <nav>
+    <div class="nav-logo">codencode</div>
+    <div class="nav-pill">my workshops</div>
+  </nav>
+  <div class="glow-orb tl"></div>
+  <div class="glow-orb br"></div>
+
+  <div class="page-hero">
+    <div class="user-pill">
+      <div class="u-avatar" id="uAvatar">S</div>
+      <span id="uGreeting">welcome back, Sarah</span>
+    </div>
+    <h2>your <span class="cyan">workshop</span> portal</h2>
+    <p style="color:var(--muted);font-size:0.88rem;margin-top:6px;">Click on a workshop to access all slides, code, and materials.</p>
+  </div>
+
+  <div class="ws-grid" id="wsGrid">
+
+    <div class="ws-list-card" onclick="openWs(0)">
+      <div class="card-top theme-python"><div class="card-enrolled-tag">ENROLLED ✓</div><div class="card-big-emoji">🐍</div></div>
+      <div class="card-body">
+        <div class="card-date">SAT 31 MAY 2026 · 9AM–5PM</div>
+        <div class="card-title">Python for Beginners — Bootcamp</div>
+        <div class="card-chips"><span class="card-chip">📍 KL</span><span class="card-chip">⏱ 8 hrs</span><span class="card-chip">🗣 English</span></div>
+        <div class="card-footer"><span class="card-mat-count">12 MATERIALS</span><button class="btn-open">OPEN →</button></div>
+      </div>
+    </div>
+
+    <div class="ws-list-card" onclick="openWs(1)">
+      <div class="card-top theme-ml"><div class="card-enrolled-tag">14 JUN 2026</div><div class="card-big-emoji">🤖</div></div>
+      <div class="card-body">
+        <div class="card-date">SAT 14 JUN 2026 · 9AM–5PM</div>
+        <div class="card-title">Intro to Machine Learning Workshop</div>
+        <div class="card-chips"><span class="card-chip">📍 JB</span><span class="card-chip">⏱ 8 hrs</span><span class="card-chip">🗣 BM/EN</span></div>
+        <div class="card-footer"><span class="card-mat-count">10 MATERIALS</span><button class="btn-open">OPEN →</button></div>
+      </div>
+    </div>
+
+    <div class="ws-list-card" onclick="openWs(2)">
+      <div class="card-top theme-vibe"><div class="card-enrolled-tag">28 JUN 2026</div><div class="card-big-emoji">✨</div></div>
+      <div class="card-body">
+        <div class="card-date">SAT 28 JUN 2026 · 10AM–4PM</div>
+        <div class="card-title">Vibe Coding with AI Tools</div>
+        <div class="card-chips"><span class="card-chip">🌐 Online</span><span class="card-chip">⏱ 6 hrs</span><span class="card-chip">🗣 EN/中文</span></div>
+        <div class="card-footer"><span class="card-mat-count">8 MATERIALS</span><button class="btn-open">OPEN →</button></div>
+      </div>
+    </div>
+
+    <div class="ws-list-card" onclick="openWs(3)">
+      <div class="card-top theme-data"><div class="card-enrolled-tag">12 JUL 2026</div><div class="card-big-emoji">📊</div></div>
+      <div class="card-body">
+        <div class="card-date">SAT 12 JUL 2026 · 9AM–5PM</div>
+        <div class="card-title">Python for Data Analysis</div>
+        <div class="card-chips"><span class="card-chip">📍 KL</span><span class="card-chip">⏱ 8 hrs</span><span class="card-chip">🗣 English</span></div>
+        <div class="card-footer"><span class="card-mat-count">11 MATERIALS</span><button class="btn-open">OPEN →</button></div>
+      </div>
+    </div>
+
+    <div class="ws-list-card" onclick="openWs(4)">
+      <div class="card-top theme-eve"><div class="card-enrolled-tag">EVERY TUE</div><div class="card-big-emoji">🌙</div></div>
+      <div class="card-body">
+        <div class="card-date">EVERY TUESDAY · 7:30 PM – 9:30 PM</div>
+        <div class="card-title">Foon Yew Evening School — Python Night</div>
+        <div class="card-chips"><span class="card-chip">📍 Foon Yew, JB</span><span class="card-chip">⏱ 2 hrs/week</span></div>
+        <div class="card-footer"><span class="card-mat-count">Weekly Materials</span><button class="btn-open">OPEN →</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 3: MATERIALS ══════════════ -->
+<div class="page" id="page-materials">
+  <nav>
+    <div class="nav-logo">codencode</div>
+    <div class="nav-pill" id="matNavPill">materials</div>
+  </nav>
+
+  <div class="mat-header">
+    <button class="back-btn" onclick="goBack()">← back to workshops</button>
+    <div class="ws-title-block">
+      <div>
+        <h2 id="matTitle">Workshop Title</h2>
+        <div class="ws-meta-row" id="matMeta"></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-label" id="progLabel">0 / 0 DONE</div>
+        <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mat-content" id="matContent"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span>✓</span><span id="toastMsg"></span></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const WS_DATA = [
+  {
+    id:0, title:"Python for Beginners — One Day Bootcamp",
+    date:"SAT 31 MAY 2026", time:"9:00 AM – 5:00 PM", loc:"📍 KL", lang:"English",
+    announcements:[
+      {icon:"📢",title:"Welcome!",body:"Bring your laptop with Python 3.11+ installed. Setup guide is in the materials below."},
+      {icon:"☕",title:"Breaks & Lunch",body:"Morning break 10:30 AM, lunch 1 PM (provided), afternoon break 3 PM."},
+    ],
+    schedule:[
+      {time:"09:00 AM",title:"Welcome & Setup",desc:"Intro, icebreakers, Python install check"},
+      {time:"10:00 AM",title:"Session 1 — Python Basics",desc:"Variables, data types, print/input, f-strings"},
+      {time:"11:30 AM",title:"Session 2 — Logic & Conditions",desc:"if/elif/else, operators, AI Tools intro"},
+      {time:"01:00 PM",title:"Lunch Break 🍱",desc:"Provided on-site"},
+      {time:"02:00 PM",title:"Session 3 — Loops & Functions",desc:"for/while, def & return, scope"},
+      {time:"03:30 PM",title:"Mini Project Build",desc:"Build your own simple Python program"},
+      {time:"04:30 PM",title:"Showcase & Certificate 🎓",desc:"Demo, Q&A, certificate distribution"},
+    ],
+    materials:[
+      {type:"slide",name:"Full Workshop Slide Deck",size:"8.2 MB",dur:"60 slides",icon:"🗂"},
+      {type:"pdf",name:"Session 1 — Python Basics Notes",size:"1.1 MB",dur:"12 pages",icon:"📄"},
+      {type:"code",name:"Session 1 — Exercise Files (.zip)",size:"34 KB",dur:"5 exercises",icon:"💻"},
+      {type:"pdf",name:"Session 2 — Logic & Conditions Cheatsheet",size:"0.8 MB",dur:"6 pages",icon:"📄"},
+      {type:"video",name:"Python Setup Walkthrough",size:"—",dur:"12 min",icon:"🎬"},
+      {type:"code",name:"Session 3 — Mini Project Starter Kit",size:"52 KB",dur:"Starter code",icon:"💻"},
+      {type:"quiz",name:"Python Basics Quiz (10 questions)",size:"—",dur:"~10 min",icon:"📝"},
+      {type:"pdf",name:"Python Cheatsheet — Full Reference",size:"2.3 MB",dur:"8 pages",icon:"📄"},
+      {type:"link",name:"Official Python Docs",size:"—",dur:"External",icon:"🔗"},
+      {type:"pdf",name:"Git & GitHub Quick Start",size:"0.9 MB",dur:"5 pages",icon:"📄"},
+      {type:"code",name:"Capstone Project Template",size:"48 KB",dur:"Starter",icon:"💻"},
+      {type:"pdf",name:"Certificate of Completion",size:"0.4 MB",dur:"1 page",icon:"🎓"},
+    ]
+  },
+  {
+    id:1, title:"Intro to Machine Learning Workshop",
+    date:"SAT 14 JUN 2026", time:"9:00 AM – 5:00 PM", loc:"📍 JB", lang:"BM / EN",
+    announcements:[
+      {icon:"💡",title:"Pre-requisite",body:"Basic Python required. Complete the pre-reading PDF before attending."},
+      {icon:"💻",title:"Software Setup",body:"Install Anaconda + Jupyter Notebook. Download links are in materials below."},
+    ],
+    schedule:[
+      {time:"09:00 AM",title:"Intro to AI & ML",desc:"What is ML? Types, real-world use cases"},
+      {time:"10:30 AM",title:"Data & Pandas",desc:"DataFrames, read_csv, EDA, data cleaning"},
+      {time:"12:00 PM",title:"Supervised Learning",desc:"Linear regression, classification with sklearn"},
+      {time:"01:00 PM",title:"Lunch Break 🍱",desc:"Provided on-site"},
+      {time:"02:00 PM",title:"Model Evaluation",desc:"Accuracy, confusion matrix, cross-validation"},
+      {time:"03:30 PM",title:"Mini ML Project",desc:"Predict outcomes on real dataset"},
+      {time:"04:30 PM",title:"Showcase & Certificate 🎓",desc:"Demo, discussion, certificates"},
+    ],
+    materials:[
+      {type:"slide",name:"ML Workshop Full Slides",size:"11.4 MB",dur:"72 slides",icon:"🗂"},
+      {type:"pdf",name:"Pre-reading — Python for ML Recap",size:"1.8 MB",dur:"14 pages",icon:"📄"},
+      {type:"code",name:"Jupyter Notebooks Pack (.zip)",size:"280 KB",dur:"6 notebooks",icon:"💻"},
+      {type:"video",name:"ML Concepts Explained (Video)",size:"—",dur:"18 min",icon:"🎬"},
+      {type:"pdf",name:"sklearn Cheatsheet",size:"1.2 MB",dur:"4 pages",icon:"📄"},
+      {type:"quiz",name:"ML Concepts Quiz (15 questions)",size:"—",dur:"~15 min",icon:"📝"},
+      {type:"link",name:"Kaggle Beginner Datasets",size:"—",dur:"External",icon:"🔗"},
+      {type:"code",name:"Mini Project Starter (House Prices)",size:"64 KB",dur:"Dataset + template",icon:"💻"},
+      {type:"pdf",name:"Model Evaluation Reference",size:"0.9 MB",dur:"5 pages",icon:"📄"},
+      {type:"pdf",name:"Certificate of Completion",size:"0.4 MB",dur:"1 page",icon:"🎓"},
+    ]
+  },
+  {
+    id:2, title:"Vibe Coding with AI Tools",
+    date:"SAT 28 JUN 2026", time:"10:00 AM – 4:00 PM", loc:"🌐 Online (Zoom)", lang:"EN / 中文",
+    announcements:[
+      {icon:"🔗",title:"Zoom Link",body:"Your link will be emailed 30 minutes before. Check spam if needed."},
+      {icon:"🛠",title:"Tools Needed",body:"Claude.ai (free), Cursor IDE or VS Code, GitHub account. All free!"},
+    ],
+    schedule:[
+      {time:"10:00 AM",title:"Intro to Vibe Coding",desc:"What it is, the AI-assisted workflow"},
+      {time:"11:00 AM",title:"Prompt Engineering for Devs",desc:"Writing effective prompts, iteration"},
+      {time:"12:00 PM",title:"Break + Q&A",desc:"15-minute break"},
+      {time:"12:15 PM",title:"Build with Cursor + Claude",desc:"Live: build a mini web app with AI"},
+      {time:"02:00 PM",title:"Deploy in 10 Minutes",desc:"GitHub Pages + Vercel walkthrough"},
+      {time:"03:00 PM",title:"Your Own Project",desc:"Free build time with instructor support"},
+      {time:"03:45 PM",title:"Showcase & Wrap-up",desc:"Demo, next steps"},
+    ],
+    materials:[
+      {type:"slide",name:"Vibe Coding Workshop Slides",size:"6.8 MB",dur:"48 slides",icon:"🗂"},
+      {type:"video",name:"Demo — Build a Portfolio in 20min",size:"—",dur:"22 min",icon:"🎬"},
+      {type:"pdf",name:"Prompt Engineering Cheatsheet",size:"0.7 MB",dur:"3 pages",icon:"📄"},
+      {type:"code",name:"Starter Templates (.zip)",size:"45 KB",dur:"3 templates",icon:"💻"},
+      {type:"link",name:"Claude.ai (Free Account)",size:"—",dur:"External",icon:"🔗"},
+      {type:"link",name:"Cursor IDE Download",size:"—",dur:"External",icon:"🔗"},
+      {type:"pdf",name:"Deploy Checklist — GitHub Pages",size:"0.5 MB",dur:"2 pages",icon:"📄"},
+      {type:"pdf",name:"Certificate of Completion",size:"0.4 MB",dur:"1 page",icon:"🎓"},
+    ]
+  },
+  {
+    id:3, title:"Python for Data Analysis",
+    date:"SAT 12 JUL 2026", time:"9:00 AM – 5:00 PM", loc:"📍 KL", lang:"English",
+    announcements:[
+      {icon:"📊",title:"Dataset Access",body:"Real-world Malaysian e-commerce data will be used. Dataset is in the exercise pack."},
+      {icon:"🛠",title:"Setup Guide",body:"Install pandas, matplotlib, seaborn, openpyxl. requirements.txt in materials."},
+    ],
+    schedule:[
+      {time:"09:00 AM",title:"Data Analysis Landscape",desc:"Tools, careers, Malaysian use cases"},
+      {time:"10:00 AM",title:"Pandas Deep Dive",desc:"DataFrames, filtering, groupby, merge"},
+      {time:"11:30 AM",title:"Data Cleaning",desc:"Missing values, duplicates, type casting"},
+      {time:"01:00 PM",title:"Lunch Break 🍱",desc:"Provided on-site"},
+      {time:"02:00 PM",title:"Visualisation",desc:"matplotlib, seaborn, heatmaps, storytelling"},
+      {time:"03:30 PM",title:"Mini Analysis Project",desc:"Analyse a real dataset, present findings"},
+      {time:"04:30 PM",title:"Showcase & Certificate 🎓",desc:"Demo, Q&A, certificates"},
+    ],
+    materials:[
+      {type:"slide",name:"Data Analysis Workshop Slides",size:"9.6 MB",dur:"66 slides",icon:"🗂"},
+      {type:"code",name:"Jupyter Notebook Pack (.zip)",size:"320 KB",dur:"7 notebooks",icon:"💻"},
+      {type:"code",name:"Workshop Datasets (.zip)",size:"4.1 MB",dur:"3 CSV files",icon:"💻"},
+      {type:"pdf",name:"Pandas Cheatsheet",size:"1.1 MB",dur:"4 pages",icon:"📄"},
+      {type:"pdf",name:"Data Cleaning Checklist",size:"0.6 MB",dur:"3 pages",icon:"📄"},
+      {type:"video",name:"Seaborn Visualisation Walkthrough",size:"—",dur:"15 min",icon:"🎬"},
+      {type:"quiz",name:"Pandas Knowledge Check (12 questions)",size:"—",dur:"~12 min",icon:"📝"},
+      {type:"code",name:"requirements.txt",size:"1 KB",dur:"Setup file",icon:"💻"},
+      {type:"link",name:"Pandas Official Documentation",size:"—",dur:"External",icon:"🔗"},
+      {type:"link",name:"Seaborn Gallery",size:"—",dur:"External",icon:"🔗"},
+      {type:"pdf",name:"Certificate of Completion",size:"0.4 MB",dur:"1 page",icon:"🎓"},
+    ]
+  },
+  {
+    id:4, title:"Foon Yew Evening School — Python Night",
+    date:"EVERY TUESDAY", time:"7:30 PM – 9:30 PM", loc:"📍 Foon Yew, JB", lang:"中文 / EN",
+    announcements:[
+      {icon:"🌙",title:"Weekly Session",body:"Materials update every Tuesday before 7 PM. Download the week's materials before class."},
+      {icon:"📚",title:"Attendance",body:"Please sign in on the class register every week. Your progress is tracked weekly."},
+    ],
+    schedule:[
+      {time:"7:30 PM",title:"Recap & Warm-up",desc:"Quick review of last week's content"},
+      {time:"7:45 PM",title:"New Concept Introduction",desc:"This week's topic — see materials"},
+      {time:"8:30 PM",title:"Hands-on Exercise",desc:"Guided practice with code"},
+      {time:"9:10 PM",title:"Mini Challenge",desc:"Individual or pair challenge"},
+      {time:"9:25 PM",title:"Wrap-up & Next Week Preview",desc:"Q&A and homework intro"},
+    ],
+    materials:[
+      {type:"slide",name:"Week 1 — Python Basics (Slides)",size:"3.2 MB",dur:"28 slides",icon:"🗂"},
+      {type:"pdf",name:"Week 1 — Notes & Exercises",size:"0.8 MB",dur:"8 pages",icon:"📄"},
+      {type:"code",name:"Week 1 — Exercise Files (.zip)",size:"22 KB",dur:"3 exercises",icon:"💻"},
+      {type:"slide",name:"Week 2 — Logic & Conditions (Slides)",size:"3.5 MB",dur:"30 slides",icon:"🗂"},
+      {type:"pdf",name:"Week 2 — Notes & Exercises",size:"0.9 MB",dur:"9 pages",icon:"📄"},
+      {type:"code",name:"Week 2 — Exercise Files (.zip)",size:"25 KB",dur:"4 exercises",icon:"💻"},
+      {type:"quiz",name:"Week 1–2 Progress Check Quiz",size:"—",dur:"~8 min",icon:"📝"},
+      {type:"link",name:"Class WhatsApp Group Link",size:"—",dur:"External",icon:"🔗"},
+    ]
+  },
+];
+
+let completed = {};
+let regName = '';
+let currentWsId = 0;
+
+// ── REGISTRATION ──────────────────────────────────────────────────────────
+function submitReg() {
+  const first = document.getElementById('f_first').value.trim();
+  const last  = document.getElementById('f_last').value.trim();
+  const email = document.getElementById('f_email').value.trim();
+  const occ   = document.getElementById('f_occupation').value.trim();
+  const exp   = document.getElementById('f_exp').value;
+  const motiv = document.getElementById('f_motivation').value.trim();
+  const terms = document.getElementById('f_terms').checked;
+  const selWs = document.querySelector('input[name=workshop]:checked');
+
+  if (!first||!last)         { toast('Please enter your full name.'); return; }
+  if (!email||!email.includes('@')) { toast('Please enter a valid email.'); return; }
+  if (!occ)                  { toast('Please tell us your occupation.'); return; }
+  if (!exp)                  { toast('Please select your experience level.'); return; }
+  if (motiv.length < 15)     { toast('Please share a bit more about why you want to join.'); return; }
+  if (!selWs)                { toast('Please select a workshop.'); return; }
+  if (!terms)                { toast('Please agree to the terms to continue.'); return; }
+
+  regName = first;
+  const overlay = document.getElementById('successOverlay');
+  document.getElementById('successMsg').textContent = `Welcome, ${first}! Setting up your portal…`;
+  overlay.classList.add('show');
+
+  setTimeout(() => {
+    document.getElementById('uAvatar').textContent = first[0].toUpperCase();
+    document.getElementById('uGreeting').textContent = `welcome back, ${first.toLowerCase()}`;
+    overlay.classList.remove('show');
+    showPage('page-workshops');
+  }, 2000);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openWs(id) {
+  currentWsId = id;
+  if (!completed[id]) completed[id] = {};
+  const ws = WS_DATA[id];
+  document.getElementById('matTitle').textContent = ws.title;
+  document.getElementById('matNavPill').textContent = ws.title.split('—')[0].trim().toLowerCase();
+  document.getElementById('matMeta').innerHTML = `
+    <span class="ws-meta-tag"><span class="v">${ws.date}</span></span>
+    <span class="ws-meta-tag">${ws.time}</span>
+    <span class="ws-meta-tag">${ws.loc}</span>
+    <span class="ws-meta-tag">🗣 ${ws.lang}</span>
+  `;
+  renderMats(id);
+  showPage('page-materials');
+}
+
+function goBack() { showPage('page-workshops'); }
+
+// ── RENDER MATERIALS PAGE ─────────────────────────────────────────────────
+function renderMats(id) {
+  const ws = WS_DATA[id];
+  const done = Object.keys(completed[id]).length;
+  const total = ws.materials.length;
+  document.getElementById('progLabel').textContent = `${done} / ${total} DONE`;
+  document.getElementById('progFill').style.width = `${total ? (done/total)*100 : 0}%`;
+
+  let html = '';
+
+  // Announcements
+  html += `<div class="sec-head"><h3>📢 announcements</h3></div>`;
+  ws.announcements.forEach(a => {
+    html += `<div class="ann-card"><div class="ann-icon">${a.icon}</div><div><div class="ann-title">${a.title}</div><div class="ann-body">${a.body}</div></div></div>`;
+  });
+
+  // Schedule
+  html += `<div class="sec-head"><h3>🗓 day schedule</h3></div>`;
+  html += `<div class="glass-card" style="padding:20px 28px;margin-bottom:0"><div class="timeline">`;
+  ws.schedule.forEach(s => {
+    html += `<div class="tl-item"><div class="tl-time">${s.time}</div><div class="tl-title">${s.title}</div><div class="tl-desc">${s.desc}</div></div>`;
+  });
+  html += `</div></div>`;
+
+  // Materials
+  html += `<div class="sec-head"><h3>📦 workshop materials</h3></div>`;
+  html += `<div class="mat-list">`;
+  ws.materials.forEach((m,i) => {
+    const isDone = !!completed[id][i];
+    html += `
+      <div class="mat-item ${isDone?'done':''}" id="mi-${id}-${i}">
+        <div class="mat-ico ${m.type}">${m.icon}</div>
+        <div class="mat-info">
+          <div class="mat-name">${m.name}</div>
+          <div class="mat-sub">
+            <span>${m.type.toUpperCase()}</span>
+            ${m.size!=='—'?`<span>·</span><span>${m.size}</span>`:''}
+            <span>·</span><span>${m.dur}</span>
+          </div>
+        </div>
+        <div class="mat-acts">
+          <button class="dl-btn" onclick="handleDl(event,'${m.name}','${m.type}')">
+            ${m.type==='link'?'↗ OPEN':m.type==='video'?'▶ PLAY':m.type==='quiz'?'▶ START':'↓ GET'}
+          </button>
+          <div class="chk-circle" onclick="toggleDone(event,${id},${i})">${isDone?'✓':''}</div>
+        </div>
+      </div>`;
+  });
+  html += `</div>`;
+
+  document.getElementById('matContent').innerHTML = html;
+}
+
+function toggleDone(e, wsId, idx) {
+  e.stopPropagation();
+  if (completed[wsId][idx]) { delete completed[wsId][idx]; }
+  else { completed[wsId][idx]=true; toast('Marked complete! 🎉'); }
+  renderMats(wsId);
+}
+
+function handleDl(e, name, type) {
+  e.stopPropagation();
+  toast(`${type==='link'?'Opening':'Downloading'}: ${name.substring(0,32)}…`);
+}
+
+// ── TOAST ────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+</script>
+<script>
+let portalWorkshops = [];
+let portalMine = [];
+let portalEmail = localStorage.getItem('cc_workshop_email') || '';
+let portalName = localStorage.getItem('cc_workshop_name') || '';
+let portalCurrent = null;
+let portalProgress = {};
+
+async function portalApi(path, options = {}) {
+  const res = await fetch(path, {
+    ...options,
+    headers: {'Content-Type': 'application/json', ...(options.headers || {})},
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+function portalDate(w) {
+  if (!w.workshop_date) return '';
+  const d = new Date(`${w.workshop_date}T00:00:00`);
+  return d.toLocaleDateString('en-MY', {weekday:'short', day:'numeric', month:'short', year:'numeric'}).toUpperCase();
+}
+
+function portalTime(w) {
+  return `${w.time_start || ''} - ${w.time_end || ''}`.replace(/^ - $/, '');
+}
+
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadPublicWorkshops() {
+  portalWorkshops = await portalApi('/api/workshops');
+  const wrap = document.querySelector('#page-register .workshop-grid');
+  if (!wrap) return;
+  wrap.innerHTML = portalWorkshops.map(w => `
+    <label class="ws-option">
+      <input type="radio" name="workshop" value="${w.id}">
+      <div class="ws-card">
+        <div class="ws-radio-dot"></div>
+        <div class="ws-body">
+          <div class="ws-title">${esc(w.emoji)} ${esc(w.title)} <span class="ws-badge ${w.location_type === 'online' ? 'badge-online' : 'badge-open'}">${w.location_type === 'online' ? 'ONLINE' : 'OPEN'}</span></div>
+          <div class="ws-meta">${portalDate(w)} · ${portalTime(w)} · ${esc(w.location || w.location_type)}</div>
+        </div>
+      </div>
+    </label>
+  `).join('') || '<div style="color:var(--muted);font-size:0.85rem">No published workshops yet.</div>';
+}
+
+async function loadMine() {
+  if (!portalEmail) return;
+  portalMine = await portalApi(`/api/workshop/my?email=${encodeURIComponent(portalEmail)}`);
+  const first = (portalName || portalEmail).split(' ')[0];
+  const avatar = document.getElementById('uAvatar');
+  const greeting = document.getElementById('uGreeting');
+  if (avatar) avatar.textContent = first[0] ? first[0].toUpperCase() : 'C';
+  if (greeting) greeting.textContent = `welcome back, ${first.toLowerCase()}`;
+  renderWorkshopCards();
+}
+
+function renderWorkshopCards() {
+  const grid = document.getElementById('wsGrid');
+  if (!grid) return;
+  if (!portalMine.length) {
+    grid.innerHTML = '<div class="glass-card">No workshop access yet. Register first to unlock your materials.</div>';
+    return;
+  }
+  grid.innerHTML = portalMine.map(w => `
+    <div class="ws-list-card" onclick="openWs(${w.id})">
+      <div class="card-top theme-${esc(w.color_theme || 'python')}"><div class="card-enrolled-tag">ENROLLED ✓</div><div class="card-big-emoji">${esc(w.emoji || '📚')}</div></div>
+      <div class="card-body">
+        <div class="card-date">${portalDate(w)} · ${portalTime(w)}</div>
+        <div class="card-title">${esc(w.title)}</div>
+        <div class="card-chips">
+          <span class="card-chip">${esc(w.location || w.location_type || '')}</span>
+          <span class="card-chip">${esc(w.language || '')}</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-mat-count">${w.material_count || 0} materials</span>
+          <button class="btn-open">OPEN</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function submitReg() {
+  const first = document.getElementById('f_first').value.trim();
+  const last  = document.getElementById('f_last').value.trim();
+  const email = document.getElementById('f_email').value.trim();
+  const occ   = document.getElementById('f_occupation').value.trim();
+  const exp   = document.getElementById('f_exp').value;
+  const motiv = document.getElementById('f_motivation').value.trim();
+  const terms = document.getElementById('f_terms').checked;
+  const selWs = document.querySelector('input[name=workshop]:checked');
+
+  if (!first || !last) { toast('Please enter your full name.'); return; }
+  if (!email || !email.includes('@')) { toast('Please enter a valid email.'); return; }
+  if (!occ) { toast('Please tell us your occupation.'); return; }
+  if (!exp) { toast('Please select your experience level.'); return; }
+  if (motiv.length < 15) { toast('Please share a bit more about why you want to join.'); return; }
+  if (!selWs) { toast('Please select a workshop.'); return; }
+  if (!terms) { toast('Please agree to the terms to continue.'); return; }
+
+  const overlay = document.getElementById('successOverlay');
+  document.getElementById('successMsg').textContent = `Welcome, ${first}! Setting up your portal...`;
+  overlay.classList.add('show');
+  try {
+    const data = await portalApi('/api/workshop/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        workshop_id: Number(selWs.value),
+        first_name: first,
+        last_name: last,
+        email,
+        phone: document.getElementById('f_phone').value.trim(),
+        age_range: document.getElementById('f_age').value,
+        occupation: occ,
+        industry: document.getElementById('f_industry').value,
+        experience_level: exp,
+        motivation: motiv,
+        preferred_language: document.getElementById('f_lang').value,
+        referral_source: document.getElementById('f_ref').value,
+      }),
+    });
+    portalEmail = data.email;
+    portalName = data.student_name;
+    localStorage.setItem('cc_workshop_email', portalEmail);
+    localStorage.setItem('cc_workshop_name', portalName);
+    portalMine = data.workshops || [];
+    renderWorkshopCards();
+    document.getElementById('uAvatar').textContent = first[0].toUpperCase();
+    document.getElementById('uGreeting').textContent = `welcome back, ${first.toLowerCase()}`;
+    overlay.classList.remove('show');
+    showPage('page-workshops');
+  } catch (err) {
+    overlay.classList.remove('show');
+    toast('Could not register. Please try again.');
+  }
+}
+
+async function openWs(id) {
+  if (!portalEmail) { showPage('page-register'); return; }
+  try {
+    const data = await portalApi(`/api/workshop/workshops/${id}?email=${encodeURIComponent(portalEmail)}`);
+    portalCurrent = data;
+    portalProgress = {};
+    (data.progress || []).forEach(mid => portalProgress[mid] = true);
+    const ws = data.workshop;
+    document.getElementById('matTitle').textContent = ws.title;
+    document.getElementById('matNavPill').textContent = ws.title.split('—')[0].trim().toLowerCase();
+    document.getElementById('matMeta').innerHTML = `
+      <span class="ws-meta-tag"><span class="v">${portalDate(ws)}</span></span>
+      <span class="ws-meta-tag">${portalTime(ws)}</span>
+      <span class="ws-meta-tag">${esc(ws.location || ws.location_type || '')}</span>
+      <span class="ws-meta-tag">${esc(ws.language || '')}</span>
+    `;
+    renderMats(id);
+    showPage('page-materials');
+  } catch (err) {
+    toast('Register for this workshop before opening materials.');
+  }
+}
+
+function renderMats(id) {
+  const data = portalCurrent;
+  if (!data) return;
+  const mats = data.materials || [];
+  const done = mats.filter(m => portalProgress[m.id]).length;
+  const total = mats.length;
+  document.getElementById('progLabel').textContent = `${done} / ${total} DONE`;
+  document.getElementById('progFill').style.width = `${total ? (done / total) * 100 : 0}%`;
+
+  let html = '<div class="sec-head"><h3>announcements</h3></div>';
+  html += (data.announcements || []).map(a => `<div class="ann-card"><div class="ann-icon">${esc(a.icon)}</div><div><div class="ann-title">${esc(a.title)}</div><div class="ann-body">${esc(a.body)}</div></div></div>`).join('') || '<div class="ann-body">No announcements yet.</div>';
+
+  html += '<div class="sec-head"><h3>day schedule</h3></div><div class="glass-card" style="padding:20px 28px;margin-bottom:0"><div class="timeline">';
+  html += (data.schedule || []).map(s => `<div class="tl-item"><div class="tl-time">${esc(s.time_slot)}</div><div class="tl-title">${esc(s.title)}</div><div class="tl-desc">${esc(s.description)}</div></div>`).join('');
+  html += '</div></div>';
+
+  html += '<div class="sec-head"><h3>workshop materials</h3></div><div class="mat-list">';
+  html += mats.map(m => {
+    const isDone = !!portalProgress[m.id];
+    const action = m.material_type === 'link' ? '↗ OPEN' : m.material_type === 'video' ? '▶ PLAY' : m.material_type === 'quiz' ? '▶ START' : '↓ GET';
+    return `
+      <div class="mat-item ${isDone ? 'done' : ''}">
+        <div class="mat-ico ${esc(m.material_type)}">${esc(m.icon || '📄')}</div>
+        <div class="mat-info">
+          <div class="mat-name">${esc(m.name)}</div>
+          <div class="mat-sub"><span>${esc(m.material_type).toUpperCase()}</span>${m.file_size ? `<span>·</span><span>${esc(m.file_size)}</span>` : ''}${m.duration ? `<span>·</span><span>${esc(m.duration)}</span>` : ''}</div>
+        </div>
+        <div class="mat-acts">
+          <button class="dl-btn" onclick="handleDl(event,${m.id})">${action}</button>
+          <div class="chk-circle" onclick="toggleDone(event,${id},${m.id})">${isDone ? '✓' : ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+  html += '</div>';
+  document.getElementById('matContent').innerHTML = html;
+}
+
+async function toggleDone(e, wsId, materialId) {
+  e.stopPropagation();
+  const completed = !portalProgress[materialId];
+  portalProgress[materialId] = completed;
+  await portalApi(`/api/workshop/workshops/${wsId}/materials/${materialId}/progress`, {
+    method: 'POST',
+    body: JSON.stringify({email: portalEmail, completed}),
+  });
+  if (completed) toast('Marked complete!');
+  renderMats(wsId);
+}
+
+function handleDl(e, materialId) {
+  e.stopPropagation();
+  const mat = (portalCurrent?.materials || []).find(m => m.id === materialId) || {};
+  const url = mat.download_url || '#';
+  const name = mat.name || 'material';
+  if (url && url !== '#') window.open(url, '_blank', 'noopener');
+  else toast(`No file link added yet: ${name.substring(0, 32)}`);
+}
+
+function goBack() { showPage('page-workshops'); }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await loadPublicWorkshops();
+    if (portalEmail) {
+      await loadMine();
+      if (portalMine.length) showPage('page-workshops');
+    }
+  } catch (err) {
+    toast('Workshop portal could not load.');
+  }
+});
+</script>
+</body>
+</html>

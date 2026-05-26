@@ -72,7 +72,7 @@ Push `register.html` to your GitHub Pages repo. Done! ✅
 2. Browser POSTs JSON to your Railway API
 3. Railway generates a PDF with all student details
 4. Two emails are sent:
-   - **Admin email** → `hello@codencode.my` with full details + PDF attached
+   - **Admin email** → `codencodemy@gmail.com` with full details + PDF attached
    - **Student email** → their address with confirmation + PDF attached
 5. Student sees success screen on the website
 

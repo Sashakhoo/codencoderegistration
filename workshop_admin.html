@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop Manager — codencode Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Orbitron:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black: #050810;
+  --navy: #070d1a;
+  --navy-light: #0b1220;
+  --navy-mid: #0f1829;
+  --cyan: #00e5c8;
+  --cyan2: #00c4ff;
+  --cyan-glow: rgba(0,229,200,0.35);
+  --cyan-dim: rgba(0,229,200,0.08);
+  --cyan-border: rgba(0,229,200,0.22);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.1);
+  --red: #ff4d6d;
+  --red-dim: rgba(255,77,109,0.1);
+  --green: #00e5a0;
+  --green-dim: rgba(0,229,160,0.1);
+  --white: #e8f4f8;
+  --muted: #4a6a7a;
+  --glass: rgba(8,16,28,0.75);
+  --glass-border: rgba(0,229,200,0.16);
+  --sidebar-w: 290px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  overflow-x: hidden;
+}
+
+/* GRID TEXTURE */
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(0,229,200,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,200,0.03) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events:none; z-index:0;
+}
+
+/* GLOW ORBS */
+.orb { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:0; }
+.orb-tl { width:500px;height:500px;top:-200px;left:-100px;background:radial-gradient(circle,rgba(0,229,200,0.09),transparent 70%); }
+.orb-br { width:400px;height:400px;bottom:-150px;right:-100px;background:radial-gradient(circle,rgba(0,196,255,0.08),transparent 70%); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-height: 100vh;
+  background: rgba(7,13,26,0.95);
+  border-right: 1px solid var(--glass-border);
+  position: fixed; left:0; top:0; bottom:0;
+  display: flex; flex-direction: column;
+  z-index: 50;
+  backdrop-filter: blur(20px);
+}
+
+.sidebar-top {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  position: relative;
+}
+.sidebar-top::after {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0.4;
+}
+
+.logo-mark {
+  font-family: 'Black Ops One', cursive;
+  font-size: 1.25rem;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan-glow), 2px 0 0 rgba(255,100,200,0.4), -2px 0 0 rgba(0,196,255,0.4);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.admin-badge {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 20px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(245,200,66,0.25);
+  color: var(--gold);
+}
+
+.sidebar-nav { flex:1; padding:18px 12px; overflow-y:auto; }
+.sidebar-nav::-webkit-scrollbar { width:4px; }
+.sidebar-nav::-webkit-scrollbar-track { background:transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb { background:rgba(0,229,200,0.2); border-radius:2px; }
+
+.nav-group-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.55rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--muted); padding: 0 10px;
+  margin-bottom: 8px; margin-top: 20px;
+}
+.nav-group-label:first-child { margin-top:4px; }
+
+.ws-nav-btn {
+  display: flex; align-items: center; gap: 11px;
+  width: 100%; padding: 11px 12px; border-radius: 10px;
+  cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s; margin-bottom: 4px;
+  background: none; text-align: left;
+}
+.ws-nav-btn:hover {
+  background: var(--cyan-dim);
+  border-color: var(--glass-border);
+}
+.ws-nav-btn.active {
+  background: var(--cyan-dim);
+  border-color: var(--cyan-border);
+}
+.ws-nav-emoji { font-size: 1.1rem; flex-shrink:0; }
+.ws-nav-info { flex:1; min-width:0; }
+.ws-nav-name {
+  font-size: 0.8rem; font-weight: 600; color: var(--white);
+  white-space: nowrap; overflow:hidden; text-overflow:ellipsis;
+  margin-bottom: 2px;
+}
+.ws-nav-btn.active .ws-nav-name { color: var(--cyan); }
+.ws-nav-date {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.58rem; color: var(--muted); letter-spacing: 0.5px;
+}
+.pub-indicator {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); flex-shrink:0;
+  transition: background 0.2s;
+}
+.ws-nav-btn.published .pub-indicator {
+  background: var(--green);
+  box-shadow: 0 0 8px rgba(0,229,160,0.5);
+}
+
+.btn-new {
+  margin: 12px;
+  padding: 13px 16px;
+  width: calc(100% - 24px);
+  background: linear-gradient(135deg, var(--cyan), #00b8d4);
+  color: var(--navy);
+  border: none; border-radius: 10px;
+  font-family: 'Black Ops One', cursive;
+  font-size: 0.8rem; letter-spacing: 2px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  position: relative; overflow:hidden;
+}
+.btn-new::before {
+  content:''; position:absolute; inset:0;
+  background: linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.btn-new:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(0,229,200,0.4);
+}
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex:1; position:relative; z-index:1; min-height:100vh;
+  display:flex; flex-direction:column;
+}
+
+/* TOPBAR */
+.topbar {
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 16px 36px;
+  background: rgba(5,8,16,0.9);
+  border-bottom: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  position: sticky; top:0; z-index:40;
+}
+.topbar-left { display:flex; align-items:center; gap:14px; }
+.topbar-title {
+  font-family: 'Black Ops One', cursive;
+  font-size: 1.1rem;
+  text-shadow: 2px 0 0 rgba(255,80,180,0.3), -2px 0 0 rgba(0,196,255,0.3);
+}
+.topbar-title .cyan { color: var(--cyan); }
+.topbar-right { display:flex; gap:8px; align-items:center; }
+
+/* EMPTY STATE */
+.empty-state {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:18px; text-align:center; padding:60px 40px;
+}
+.empty-glyph {
+  font-size: 5rem; opacity:0.2;
+  filter: grayscale(1);
+}
+.empty-state h2 {
+  font-family: 'Black Ops One', cursive;
+  font-size: 1.4rem; color: var(--muted);
+}
+.empty-state p { font-size:0.85rem; color:var(--muted); max-width:280px; line-height:1.65; }
+
+/* EDITOR */
+.editor { flex:1; display:none; flex-direction:column; }
+.editor.show { display:flex; }
+
+/* TAB NAV */
+.tab-nav {
+  display: flex; gap: 2px; padding: 0 36px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(5,8,16,0.6);
+}
+.tab-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 2px; text-transform: uppercase;
+  padding: 14px 18px; background:none; border:none;
+  border-bottom: 2px solid transparent;
+  color: var(--muted); cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  margin-bottom: -1px;
+}
+.tab-btn:hover { color: var(--white); }
+.tab-btn.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+.tab-panel { display:none; padding: 28px 36px; max-width:860px; }
+.tab-panel.active { display:block; }
+
+/* GLASS CARD */
+.g-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px; padding: 26px 30px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(20px);
+  position: relative; overflow:hidden;
+}
+.g-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0.4;
+}
+
+.g-card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0,229,200,0.1);
+  display: flex; align-items:center; justify-content:space-between;
+}
+
+/* FORM */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 0.73rem; font-weight:500;
+  color: var(--muted); margin-bottom: 7px; letter-spacing: 0.3px;
+}
+.field-row   { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.field-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+
+input[type=text], input[type=date], input[type=time], input[type=url],
+select, textarea {
+  width:100%;
+  background: rgba(0,229,200,0.04);
+  border: 1px solid rgba(0,229,200,0.12);
+  border-radius: 9px; padding: 11px 14px;
+  color: var(--white); font-family:'DM Sans',sans-serif; font-size:0.87rem;
+  outline:none; transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(0,229,200,0.1);
+}
+input::placeholder, textarea::placeholder { color: rgba(74,106,122,0.6); }
+select option { background: #0b1220; color: var(--white); }
+textarea { resize:vertical; min-height:80px; line-height:1.6; }
+
+/* TOGGLE */
+.toggle-row { display:flex; align-items:center; gap:12px; }
+.toggle { position:relative; width:46px; height:25px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-track {
+  position:absolute; inset:0;
+  background: rgba(255,255,255,0.08); border-radius:13px;
+  cursor:pointer; transition:background 0.2s;
+  border: 1px solid rgba(0,229,200,0.15);
+}
+.toggle-track::before {
+  content:''; position:absolute;
+  width:19px; height:19px; left:3px; top:2px;
+  background:#fff; border-radius:50%; transition:transform 0.2s;
+}
+.toggle input:checked + .toggle-track { background: var(--cyan); border-color:var(--cyan); }
+.toggle input:checked + .toggle-track::before { transform:translateX(21px); background:var(--navy); }
+.toggle-lbl { font-size:0.83rem; color:var(--muted); }
+
+/* BUTTONS */
+.btn {
+  display:inline-flex; align-items:center; gap:7px;
+  padding: 9px 18px; border-radius: 9px; border:none;
+  cursor:pointer; font-family:'Space Mono',monospace;
+  font-size:0.65rem; letter-spacing:1.5px; font-weight:700;
+  transition: all 0.15s;
+}
+.btn-cyan  { background:var(--cyan); color:var(--navy); }
+.btn-cyan:hover  { box-shadow:0 4px 20px rgba(0,229,200,0.4); transform:translateY(-1px); }
+.btn-ghost { background:none; color:var(--muted); border:1px solid var(--glass-border); }
+.btn-ghost:hover { border-color:var(--cyan-border); color:var(--white); }
+.btn-red   { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,77,109,0.2); }
+.btn-red:hover   { background:var(--red); color:#fff; }
+.btn-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(0,229,160,0.2); }
+.btn-green:hover { background:var(--green); color:var(--navy); }
+.btn-gold  { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(245,200,66,0.2); }
+.btn-gold:hover  { background:var(--gold); color:var(--navy); }
+.btn-sm { padding:6px 12px; font-size:0.58rem; }
+.btn-xs { padding:4px 9px; font-size:0.54rem; }
+
+/* MATERIAL LIST */
+.mat-list { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.mat-row {
+  display:flex; align-items:center; gap:12px;
+  padding: 12px 16px;
+  background: rgba(0,229,200,0.03);
+  border: 1px solid rgba(0,229,200,0.1);
+  border-radius: 10px;
+  transition: border-color 0.15s;
+}
+.mat-row:hover { border-color: rgba(0,229,200,0.25); }
+.drag-h { color:var(--muted); font-size:0.9rem; cursor:grab; flex-shrink:0; }
+.mat-emoji { font-size:1.2rem; flex-shrink:0; }
+.mat-info { flex:1; min-width:0; }
+.mat-name { font-size:0.84rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mat-sub  { font-family:'Space Mono',monospace; font-size:0.6rem; color:var(--muted); margin-top:2px; }
+.mat-acts { display:flex; gap:6px; flex-shrink:0; }
+
+/* SCHEDULE */
+.sch-list { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+.sch-row {
+  display:grid; grid-template-columns:110px 1fr auto;
+  gap:10px; align-items:center;
+  padding: 10px 14px;
+  background: rgba(0,229,200,0.03);
+  border: 1px solid rgba(0,229,200,0.1);
+  border-radius: 10px;
+}
+.sch-row input { margin:0; background: rgba(0,229,200,0.04); }
+
+/* ANNOUNCEMENT */
+.ann-list { display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.ann-row {
+  display:flex; gap:12px; padding:16px 18px;
+  background: rgba(0,229,200,0.03);
+  border: 1px solid rgba(245,200,66,0.15);
+  border-left: 3px solid rgba(245,200,66,0.4);
+  border-radius:10px;
+}
+.ann-icon-col { flex-shrink:0; }
+.ann-fields { flex:1; display:flex; flex-direction:column; gap:8px; }
+.ann-fields input { margin:0; }
+
+/* STAT CHIPS */
+.stat-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+.stat-chip {
+  padding:12px 20px; text-align:center;
+  background:var(--glass); border:1px solid var(--glass-border);
+  border-radius:12px; backdrop-filter:blur(12px);
+}
+.stat-num {
+  font-family:'Black Ops One',cursive; font-size:1.6rem;
+  color:var(--cyan);
+  text-shadow:0 0 16px rgba(0,229,200,0.4);
+}
+.stat-lbl { font-family:'Space Mono',monospace; font-size:0.58rem; color:var(--muted); letter-spacing:1px; margin-top:3px; }
+
+/* REG TABLE */
+.reg-scroll { overflow-x:auto; }
+.reg-table { width:100%; border-collapse:collapse; font-size:0.8rem; white-space:nowrap; }
+.reg-table th {
+  font-family:'Space Mono',monospace; font-size:0.58rem; letter-spacing:1.5px;
+  color:var(--muted); padding:10px 14px; text-align:left;
+  border-bottom:1px solid rgba(0,229,200,0.1);
+}
+.reg-table td { padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.03); }
+.reg-table tr:hover td { background:rgba(0,229,200,0.03); }
+.reg-tag {
+  display:inline-block; font-family:'Space Mono',monospace; font-size:0.6rem;
+  padding:2px 8px; border-radius:6px;
+  background:var(--cyan-dim); color:var(--cyan);
+  border:1px solid var(--cyan-border);
+}
+.reg-empty { padding:32px; text-align:center; color:var(--muted); font-size:0.82rem; }
+
+/* MODAL */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(6px);
+  z-index:200; align-items:center; justify-content:center;
+}
+.modal-bg.show { display:flex; }
+.modal {
+  background: var(--navy-light);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px; padding:30px;
+  width:90%; max-width:540px; max-height:90vh; overflow-y:auto;
+  position:relative;
+  animation: slideUp 0.25s ease;
+}
+.modal::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+  opacity:0.5; border-radius:18px 18px 0 0;
+}
+@keyframes slideUp { from{transform:translateY(24px);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title {
+  font-family:'Black Ops One',cursive; font-size:1rem;
+  text-shadow:2px 0 0 rgba(255,80,180,0.3),-2px 0 0 rgba(0,196,255,0.3);
+  margin-bottom:22px;
+}
+.modal-title .cyan { color:var(--cyan); }
+.modal-actions {
+  display:flex; gap:10px; justify-content:flex-end;
+  margin-top:22px; padding-top:16px;
+  border-top:1px solid rgba(0,229,200,0.1);
+}
+
+/* TOAST */
+.toast {
+  position:fixed; bottom:24px; right:24px;
+  background:rgba(8,16,28,0.95); border:1px solid var(--cyan);
+  border-radius:10px; padding:11px 18px; font-size:0.8rem;
+  display:flex; align-items:center; gap:8px; z-index:999;
+  backdrop-filter:blur(12px);
+  transform:translateY(60px); opacity:0;
+  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.toast.show { transform:translateY(0); opacity:1; }
+.toast.err { border-color:var(--red); }
+.toast-icon { font-size:1rem; }
+
+/* COLOR THEME PICKER */
+.theme-picker { display:flex; gap:8px; flex-wrap:wrap; }
+.theme-swatch {
+  width:36px; height:36px; border-radius:8px; cursor:pointer;
+  border:2px solid transparent; transition:border-color 0.15s, transform 0.1s;
+  display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+}
+.theme-swatch:hover { transform:scale(1.1); }
+.theme-swatch.selected { border-color:var(--cyan); box-shadow:0 0 12px rgba(0,229,200,0.4); }
+.sw-python { background:linear-gradient(135deg,#002a3a,#003d5c); }
+.sw-ml     { background:linear-gradient(135deg,#1a0030,#2d0050); }
+.sw-vibe   { background:linear-gradient(135deg,#003820,#005c3d); }
+.sw-data   { background:linear-gradient(135deg,#2e1600,#4a2400); }
+.sw-eve    { background:linear-gradient(135deg,#200040,#38006a); }
+.sw-custom { background:linear-gradient(135deg,#1a1a2e,#16213e); }
+
+/* RESPONSIVE */
+@media(max-width:768px) {
+  .sidebar { display:none; }
+  .main { margin-left:0; }
+  .tab-panel { padding:20px; }
+  .field-row, .field-row-3 { grid-template-columns:1fr; }
+  .topbar { padding:14px 20px; }
+  .sch-row { grid-template-columns:90px 1fr auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb-tl"></div>
+<div class="orb orb-br"></div>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo-mark">codencode</div>
+    <div class="admin-badge">admin panel</div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-group-label">Workshops</div>
+    <div id="sidebarList">
+      <div style="color:var(--muted);font-size:0.78rem;padding:10px 12px;">Loading…</div>
+    </div>
+  </nav>
+
+  <button class="btn-new" onclick="openNewModal()">+ NEW WORKSHOP</button>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="topTitle">workshop <span class="cyan">manager</span></div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-ghost btn-sm" onclick="window.open('/workshop','_blank')">↗ VIEW PORTAL</button>
+      <button class="btn btn-green btn-sm" id="pubBtn" style="display:none" onclick="togglePublish()">PUBLISH</button>
+      <button class="btn btn-red btn-sm" id="delBtn" style="display:none" onclick="deleteWs()">DELETE</button>
+    </div>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState">
+    <div class="empty-glyph">🗂</div>
+    <h2>no workshop selected</h2>
+    <p>Create a new workshop or pick one from the sidebar to start editing.</p>
+    <button class="btn btn-cyan" onclick="openNewModal()">+ New Workshop</button>
+  </div>
+
+  <!-- EDITOR -->
+  <div class="editor" id="editor">
+
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('details')">DETAILS</button>
+      <button class="tab-btn" onclick="switchTab('materials')">MATERIALS</button>
+      <button class="tab-btn" onclick="switchTab('schedule')">SCHEDULE</button>
+      <button class="tab-btn" onclick="switchTab('announcements')">ANNOUNCEMENTS</button>
+      <button class="tab-btn" onclick="switchTab('registrations')">REGISTRATIONS</button>
+    </div>
+
+    <!-- ── DETAILS ── -->
+    <div class="tab-panel active" id="tab-details">
+      <div class="g-card">
+        <div class="g-card-title">// workshop info</div>
+
+        <div style="display:grid;grid-template-columns:64px 1fr;gap:14px;margin-bottom:16px">
+          <div class="field" style="margin-bottom:0">
+            <label>Emoji</label>
+            <input type="text" id="d_emoji" maxlength="4" placeholder="🐍">
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Workshop Title *</label>
+            <input type="text" id="d_title" placeholder="e.g. Python for Beginners — One Day Bootcamp">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Short Description</label>
+          <textarea id="d_desc" placeholder="Brief description shown on the workshop card…" style="min-height:72px"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Workshop Date *</label>
+            <input type="date" id="d_date">
+          </div>
+          <div class="field">
+            <label>Recurrence</label>
+            <select id="d_recur">
+              <option value="none">One-time event</option>
+              <option value="weekly">Weekly (recurring)</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row-3">
+          <div class="field">
+            <label>Start Time</label>
+            <input type="time" id="d_start" value="09:00">
+          </div>
+          <div class="field">
+            <label>End Time</label>
+            <input type="time" id="d_end" value="17:00">
+          </div>
+          <div class="field">
+            <label>Format</label>
+            <select id="d_loctype">
+              <option value="physical">📍 Physical</option>
+              <option value="online">🌐 Online (Zoom)</option>
+              <option value="hybrid">🔀 Hybrid</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Venue / Location</label>
+            <input type="text" id="d_loc" placeholder="e.g. codencode KL, Foon Yew JB, Zoom">
+          </div>
+          <div class="field">
+            <label>Language</label>
+            <select id="d_lang">
+              <option>English</option>
+              <option>Bahasa Melayu</option>
+              <option>中文 (Mandarin)</option>
+              <option>English / BM</option>
+              <option>English / 中文</option>
+              <option>BM / English / 中文</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="g-card">
+        <div class="g-card-title">// card appearance</div>
+        <div class="field">
+          <label>Color Theme</label>
+          <div class="theme-picker" id="themePicker">
+            <div class="theme-swatch sw-python selected" data-theme="python" onclick="pickTheme(this)" title="Python (Blue)">🐍</div>
+            <div class="theme-swatch sw-ml"     data-theme="ml"     onclick="pickTheme(this)" title="ML (Purple)">🤖</div>
+            <div class="theme-swatch sw-vibe"   data-theme="vibe"   onclick="pickTheme(this)" title="Vibe (Green)">✨</div>
+            <div class="theme-swatch sw-data"   data-theme="data"   onclick="pickTheme(this)" title="Data (Orange)">📊</div>
+            <div class="theme-swatch sw-eve"    data-theme="eve"    onclick="pickTheme(this)" title="Evening (Purple)">🌙</div>
+            <div class="theme-swatch sw-custom" data-theme="custom" onclick="pickTheme(this)" title="Default">🎯</div>
+          </div>
+        </div>
+        <input type="hidden" id="d_theme" value="python">
+
+        <div class="toggle-row" style="margin-top:16px">
+          <label class="toggle">
+            <input type="checkbox" id="d_pub">
+            <div class="toggle-track"></div>
+          </label>
+          <span class="toggle-lbl">Published — visible to students on the portal</span>
+        </div>
+      </div>
+
+      <button class="btn btn-cyan" onclick="saveDetails()">SAVE DETAILS</button>
+    </div>
+
+    <!-- ── MATERIALS ── -->
+    <div class="tab-panel" id="tab-materials">
+      <div class="g-card">
+        <div class="g-card-title">
+          // materials <span id="matCt" style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0"></span>
+        </div>
+        <div class="mat-list" id="matList"></div>
+        <button class="btn btn-ghost" onclick="openMatModal()">+ ADD MATERIAL</button>
+      </div>
+      <p style="font-size:0.76rem;color:var(--muted);margin-top:-8px;line-height:1.6">
+        Tip: paste your Google Drive / S3 / Railway static URL as the download link. Students click to access directly.
+      </p>
+    </div>
+
+    <!-- ── SCHEDULE ── -->
+    <div class="tab-panel" id="tab-schedule">
+      <div class="g-card">
+        <div class="g-card-title">// day schedule</div>
+        <div class="sch-list" id="schList"></div>
+        <button class="btn btn-ghost" onclick="addSchRow()">+ ADD TIME SLOT</button>
+      </div>
+      <button class="btn btn-cyan" style="margin-top:0" onclick="saveSch()">SAVE SCHEDULE</button>
+    </div>
+
+    <!-- ── ANNOUNCEMENTS ── -->
+    <div class="tab-panel" id="tab-announcements">
+      <div class="g-card">
+        <div class="g-card-title">// pinned announcements</div>
+        <div class="ann-list" id="annList"></div>
+        <button class="btn btn-ghost" onclick="addAnn()">+ ADD ANNOUNCEMENT</button>
+      </div>
+    </div>
+
+    <!-- ── REGISTRATIONS ── -->
+    <div class="tab-panel" id="tab-registrations">
+      <div class="stat-row" id="statRow"></div>
+      <div class="g-card">
+        <div class="g-card-title">
+          // registrations
+          <button class="btn btn-gold btn-sm" onclick="exportCSV()">↓ EXPORT CSV</button>
+        </div>
+        <div class="reg-scroll">
+          <table class="reg-table">
+            <thead><tr>
+              <th>#</th><th>NAME</th><th>EMAIL</th><th>OCCUPATION</th>
+              <th>INDUSTRY</th><th>EXPERIENCE</th><th>LANGUAGE</th><th>REFERRAL</th><th>DATE</th>
+            </tr></thead>
+            <tbody id="regBody"></tbody>
+          </table>
+          <div class="reg-empty" id="regEmpty" style="display:none">No registrations yet. Share the portal link to get your first sign-up!</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /editor -->
+</main>
+
+<!-- ══════════ MODAL: NEW WORKSHOP ══════════ -->
+<div class="modal-bg" id="newWsModal">
+  <div class="modal">
+    <div class="modal-title">new <span class="cyan">workshop</span></div>
+    <div style="display:grid;grid-template-columns:64px 1fr;gap:12px">
+      <div class="field"><label>Emoji</label><input type="text" id="nw_emoji" placeholder="📚" maxlength="4"></div>
+      <div class="field"><label>Title *</label><input type="text" id="nw_title" placeholder="Workshop name…"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Date *</label><input type="date" id="nw_date"></div>
+      <div class="field"><label>Venue</label><input type="text" id="nw_loc" placeholder="KL / JB / Online"></div>
+    </div>
+    <div class="field">
+      <label>Language</label>
+      <select id="nw_lang">
+        <option>English</option><option>Bahasa Melayu</option><option>中文</option>
+        <option>English / BM</option><option>English / 中文</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('newWsModal')">CANCEL</button>
+      <button class="btn btn-cyan" onclick="createWs()">CREATE →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ MODAL: MATERIAL ══════════ -->
+<div class="modal-bg" id="matModal">
+  <div class="modal">
+    <div class="modal-title" id="matModalTitle">add <span class="cyan">material</span></div>
+    <input type="hidden" id="mat_id">
+
+    <div class="field"><label>Material Name *</label>
+      <input type="text" id="mat_name" placeholder="e.g. Session 1 — Python Basics Notes">
+    </div>
+
+    <div class="field-row">
+      <div class="field"><label>Type</label>
+        <select id="mat_type" onchange="autoIcon()">
+          <option value="pdf">📄 PDF Document</option>
+          <option value="slide">🗂 Slide Deck</option>
+          <option value="video">🎬 Video</option>
+          <option value="code">💻 Code / Zip</option>
+          <option value="quiz">📝 Quiz</option>
+          <option value="link">🔗 External Link</option>
+        </select>
+      </div>
+      <div class="field"><label>Icon (emoji)</label>
+        <input type="text" id="mat_icon" placeholder="📄" maxlength="4">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field"><label>File Size</label>
+        <input type="text" id="mat_size" placeholder="e.g. 2.3 MB">
+      </div>
+      <div class="field"><label>Duration / Pages</label>
+        <input type="text" id="mat_dur" placeholder="e.g. 12 pages, 15 min">
+      </div>
+    </div>
+
+    <div class="field"><label>Section Heading</label>
+      <input type="text" id="mat_sec" placeholder="e.g. Pre-reading, Materials, Bonus Resources">
+    </div>
+
+    <div class="field"><label>Download / Open URL</label>
+      <input type="url" id="mat_url" placeholder="https://drive.google.com/… or your Railway static URL">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('matModal')">CANCEL</button>
+      <button class="btn btn-cyan" onclick="saveMat()">SAVE MATERIAL</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span id="toastMsg">Saved!</span>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════
+// DEMO DATA (localStorage-backed — swaps to real API on learn.codencode.my)
+// ════════════════════════════════════════════════════════
+const IS_DEMO = false;
+
+function ls(key, fb) {
+  try { return JSON.parse(localStorage.getItem('cc_adm_'+key)) || fb; } catch { return fb; }
+}
+function lsSet(key, val) { localStorage.setItem('cc_adm_'+key, JSON.stringify(val)); }
+
+function seedDemo() {
+  if (ls('seeded', false)) return;
+  lsSet('workshops', [
+    { id:1, emoji:'🐍', title:'Python for Beginners — One Day Bootcamp', description:'A hands-on full-day Python bootcamp for absolute beginners.', workshop_date:'2026-05-31', time_start:'09:00', time_end:'17:00', location:'codencode KL', location_type:'physical', language:'English', color_theme:'python', published:true, recurrence:'none' },
+    { id:2, emoji:'🤖', title:'Intro to Machine Learning Workshop', description:'Hands-on ML with sklearn and real Malaysian datasets.', workshop_date:'2026-06-14', time_start:'09:00', time_end:'17:00', location:'codencode JB', location_type:'physical', language:'English / BM', color_theme:'ml', published:true, recurrence:'none' },
+    { id:3, emoji:'✨', title:'Vibe Coding with AI Tools', description:'Build full-stack apps fast using Claude + Cursor + Vercel.', workshop_date:'2026-06-28', time_start:'10:00', time_end:'16:00', location:'Online (Zoom)', location_type:'online', language:'English / 中文', color_theme:'vibe', published:false, recurrence:'none' },
+    { id:4, emoji:'🌙', title:'Foon Yew Evening School — Python Night', description:'Weekly 2-hour Python evening class for Foon Yew students.', workshop_date:'2026-05-27', time_start:'19:30', time_end:'21:30', location:'Foon Yew High School, JB', location_type:'physical', language:'中文 / EN', color_theme:'eve', published:true, recurrence:'weekly' },
+  ]);
+  lsSet('mats_1', [
+    {id:101,name:'Full Workshop Slide Deck',material_type:'slide',icon:'🗂',file_size:'8.2 MB',duration:'60 slides',section:'Materials',download_url:'#',sort_order:1},
+    {id:102,name:'Session 1 — Python Basics Notes',material_type:'pdf',icon:'📄',file_size:'1.1 MB',duration:'12 pages',section:'Materials',download_url:'#',sort_order:2},
+    {id:103,name:'Exercise Files (.zip)',material_type:'code',icon:'💻',file_size:'34 KB',duration:'5 exercises',section:'Materials',download_url:'#',sort_order:3},
+  ]);
+  lsSet('sch_1', [
+    {id:201,time_slot:'09:00 AM',title:'Welcome & Setup',description:'Intro, icebreakers, Python install check'},
+    {id:202,time_slot:'10:00 AM',title:'Session 1 — Python Basics',description:'Variables, data types, print/input, f-strings'},
+    {id:203,time_slot:'01:00 PM',title:'Lunch Break 🍱',description:'Provided on-site'},
+    {id:204,time_slot:'02:00 PM',title:'Session 2 — Functions',description:'def & return, scope, docstrings'},
+    {id:205,time_slot:'04:30 PM',title:'Showcase & Certificate 🎓',description:'Demo, Q&A, certificates'},
+  ]);
+  lsSet('ann_1', [
+    {id:301,icon:'📢',title:'Welcome!',body:'Bring your laptop with Python 3.11+ installed.'},
+    {id:302,icon:'☕',title:'Breaks & Lunch',body:'Morning break 10:30 AM, lunch provided at 1 PM, afternoon break 3 PM.'},
+  ]);
+  lsSet('reg_1', [
+    {id:1,student_name:'Ahmad Faiz',email:'faiz@email.com',occupation:'University Student',industry:'Technology & Software',experience_level:'Beginner',preferred_language:'English',referral_source:'Instagram / Facebook',registered_at:'2026-05-10T08:20:00'},
+    {id:2,student_name:'Priya Nair',email:'priya@email.com',occupation:'Software Engineer',industry:'Technology & Software',experience_level:'Intermediate',preferred_language:'English',referral_source:'LinkedIn',registered_at:'2026-05-11T14:05:00'},
+    {id:3,student_name:'Chen Wei',email:'chenw@email.com',occupation:'Fresh Graduate',industry:'Finance & Banking',experience_level:'Beginner',preferred_language:'英文 / 中文',referral_source:'小红书 (XHS)',registered_at:'2026-05-12T09:45:00'},
+    {id:4,student_name:'Nur Aisyah',email:'aisyah@email.com',occupation:'Teacher',industry:'Education & Academia',experience_level:'Complete beginner',preferred_language:'Bahasa Melayu',referral_source:'School / Teacher',registered_at:'2026-05-13T11:30:00'},
+  ]);
+  lsSet('seeded', true);
+}
+
+// ════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════
+let workshops = [];
+let current = null; // current workshop object
+let curMats = [];
+let curSch  = [];
+let curAnn  = [];
+let curReg  = [];
+let selTheme = 'python';
+
+// ════════════════════════════════════════════════════════
+// API (demo localStorage OR real Flask endpoints)
+// ════════════════════════════════════════════════════════
+async function api(method, path, body) {
+  if (IS_DEMO) return demoApi(method, path, body);
+  const r = await fetch(path, {
+    method, headers:{'Content-Type':'application/json'},
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function demoApi(method, path, body) {
+  const segs = path.replace('/api/admin/','').split('/');
+  // workshops list/create
+  if (segs[0]==='workshops' && !segs[1]) {
+    let ws = ls('workshops',[]);
+    if (method==='GET')  return Promise.resolve(ws.map(w=>({...w, registrant_count:ls('reg_'+w.id,[]).length, material_count:ls('mats_'+w.id,[]).length})));
+    if (method==='POST') { const nw={...body,id:Date.now()}; ws.push(nw); lsSet('workshops',ws); return Promise.resolve(nw); }
+  }
+  const wid = parseInt(segs[1]);
+  // workshops/id
+  if (segs[0]==='workshops' && segs[1] && !segs[2]) {
+    let ws = ls('workshops',[]);
+    if (method==='PUT') { const i=ws.findIndex(w=>w.id===wid); if(i>=0){ws[i]={...ws[i],...body};lsSet('workshops',ws);return Promise.resolve(ws[i]);} }
+    if (method==='DELETE') { lsSet('workshops',ws.filter(w=>w.id!==wid)); return Promise.resolve({ok:1}); }
+  }
+  // materials
+  if (segs[2]==='materials') {
+    let m = ls('mats_'+wid,[]);
+    if (method==='GET')    return Promise.resolve(m);
+    if (method==='POST')   { const nm={...body,id:Date.now(),workshop_id:wid,sort_order:m.length+1}; m.push(nm); lsSet('mats_'+wid,m); return Promise.resolve(nm); }
+    const mid=parseInt(segs[3]);
+    if (method==='PUT')    { const i=m.findIndex(x=>x.id===mid); if(i>=0){m[i]={...m[i],...body};lsSet('mats_'+wid,m);return Promise.resolve(m[i]);} }
+    if (method==='DELETE') { lsSet('mats_'+wid,m.filter(x=>x.id!==mid)); return Promise.resolve({ok:1}); }
+  }
+  // schedule
+  if (segs[2]==='schedule') {
+    if (method==='GET') return Promise.resolve(ls('sch_'+wid,[]));
+    if (method==='PUT') { lsSet('sch_'+wid,body); return Promise.resolve({updated:body.length}); }
+  }
+  // announcements
+  if (segs[2]==='announcements') {
+    let a = ls('ann_'+wid,[]);
+    if (method==='GET')    return Promise.resolve(a);
+    if (method==='POST')   { const na={...body,id:Date.now(),created_at:new Date().toISOString()}; a.push(na); lsSet('ann_'+wid,a); return Promise.resolve(na); }
+    const aid=parseInt(segs[3]);
+    if (method==='DELETE') { lsSet('ann_'+wid,a.filter(x=>x.id!==aid)); return Promise.resolve({ok:1}); }
+  }
+  // registrations
+  if (segs[2]==='registrations') return Promise.resolve(ls('reg_'+wid,[]));
+  return Promise.resolve([]);
+}
+
+// ════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════
+async function init() {
+  if (IS_DEMO) seedDemo();
+  workshops = await api('GET', '/api/admin/workshops');
+  renderSidebar();
+}
+
+// ════════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════════
+function renderSidebar() {
+  const el = document.getElementById('sidebarList');
+  if (!workshops.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.78rem;padding:10px 12px;">No workshops yet.</div>';
+    return;
+  }
+  el.innerHTML = workshops.map(w => `
+    <button class="ws-nav-btn ${w.published?'published':''} ${current&&current.id===w.id?'active':''}"
+            onclick="selectWs(${w.id})">
+      <span class="ws-nav-emoji">${w.emoji||'📚'}</span>
+      <div class="ws-nav-info">
+        <div class="ws-nav-name">${w.title}</div>
+        <div class="ws-nav-date">${fmtDate(w.workshop_date)}${w.recurrence&&w.recurrence!=='none'?' · '+w.recurrence.toUpperCase():''}</div>
+      </div>
+      <div class="pub-indicator" title="${w.published?'Published':'Draft'}"></div>
+    </button>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════
+// SELECT WORKSHOP
+// ════════════════════════════════════════════════════════
+async function selectWs(id) {
+  current = workshops.find(w=>w.id===id);
+  if (!current) return;
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('editor').classList.add('show');
+  document.getElementById('topTitle').innerHTML = `${current.emoji||''} <span class="cyan">${current.title.split('—')[0].trim().toLowerCase()}</span>`;
+  document.getElementById('pubBtn').style.display = '';
+  document.getElementById('delBtn').style.display = '';
+  updatePubBtn();
+  renderSidebar();
+
+  // Parallel load
+  const [mats, sch, ann, reg] = await Promise.all([
+    api('GET', `/api/admin/workshops/${id}/materials`),
+    api('GET', `/api/admin/workshops/${id}/schedule`),
+    api('GET', `/api/admin/workshops/${id}/announcements`),
+    api('GET', `/api/admin/workshops/${id}/registrations`),
+  ]);
+  curMats = mats; curSch = sch; curAnn = ann; curReg = reg;
+
+  fillDetails();
+  renderMats();
+  renderSch();
+  renderAnn();
+  renderReg();
+  switchTab('details');
+}
+
+// ════════════════════════════════════════════════════════
+// DETAILS TAB
+// ════════════════════════════════════════════════════════
+function fillDetails() {
+  const w = current;
+  document.getElementById('d_emoji').value  = w.emoji||'📚';
+  document.getElementById('d_title').value  = w.title||'';
+  document.getElementById('d_desc').value   = w.description||'';
+  document.getElementById('d_date').value   = (w.workshop_date||'').substring(0,10);
+  document.getElementById('d_start').value  = w.time_start||'09:00';
+  document.getElementById('d_end').value    = w.time_end||'17:00';
+  document.getElementById('d_loc').value    = w.location||'';
+  document.getElementById('d_loctype').value = w.location_type||'physical';
+  document.getElementById('d_lang').value   = w.language||'English';
+  document.getElementById('d_recur').value  = w.recurrence||'none';
+  document.getElementById('d_pub').checked  = !!w.published;
+  selTheme = w.color_theme||'python';
+  document.getElementById('d_theme').value  = selTheme;
+  document.querySelectorAll('.theme-swatch').forEach(s=>{
+    s.classList.toggle('selected', s.dataset.theme===selTheme);
+  });
+}
+
+function pickTheme(el) {
+  document.querySelectorAll('.theme-swatch').forEach(s=>s.classList.remove('selected'));
+  el.classList.add('selected');
+  selTheme = el.dataset.theme;
+  document.getElementById('d_theme').value = selTheme;
+}
+
+async function saveDetails() {
+  if (!current) return;
+  const data = {
+    emoji:      document.getElementById('d_emoji').value,
+    title:      document.getElementById('d_title').value.trim(),
+    description:document.getElementById('d_desc').value,
+    workshop_date: document.getElementById('d_date').value,
+    time_start: document.getElementById('d_start').value,
+    time_end:   document.getElementById('d_end').value,
+    location:   document.getElementById('d_loc').value,
+    location_type: document.getElementById('d_loctype').value,
+    language:   document.getElementById('d_lang').value,
+    recurrence: document.getElementById('d_recur').value,
+    color_theme: selTheme,
+    published:  document.getElementById('d_pub').checked,
+  };
+  if (!data.title||!data.workshop_date) { toast('Title and date are required.','err'); return; }
+  const updated = await api('PUT', `/api/admin/workshops/${current.id}`, data);
+  Object.assign(current, updated);
+  const i = workshops.findIndex(w=>w.id===current.id);
+  if (i>=0) workshops[i]={...workshops[i],...updated};
+  updatePubBtn(); renderSidebar();
+  document.getElementById('topTitle').innerHTML = `${current.emoji||''} <span class="cyan">${current.title.split('—')[0].trim().toLowerCase()}</span>`;
+  toast('Details saved ✓');
+}
+
+async function togglePublish() {
+  document.getElementById('d_pub').checked = !current.published;
+  await saveDetails();
+}
+function updatePubBtn() {
+  const btn = document.getElementById('pubBtn');
+  if (current.published) { btn.textContent='UNPUBLISH'; btn.className='btn btn-ghost btn-sm'; }
+  else { btn.textContent='PUBLISH'; btn.className='btn btn-green btn-sm'; }
+}
+
+async function deleteWs() {
+  if (!current) return;
+  if (!confirm(`Delete "${current.title}"? This cannot be undone.`)) return;
+  await api('DELETE', `/api/admin/workshops/${current.id}`);
+  workshops = workshops.filter(w=>w.id!==current.id);
+  current = null;
+  document.getElementById('editor').classList.remove('show');
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('pubBtn').style.display = 'none';
+  document.getElementById('delBtn').style.display = 'none';
+  document.getElementById('topTitle').innerHTML = 'workshop <span class="cyan">manager</span>';
+  renderSidebar();
+  toast('Workshop deleted.');
+}
+
+// ════════════════════════════════════════════════════════
+// MATERIALS
+// ════════════════════════════════════════════════════════
+function renderMats() {
+  document.getElementById('matCt').textContent = `(${curMats.length})`;
+  const el = document.getElementById('matList');
+  if (!curMats.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.8rem;padding:8px 0">No materials yet. Add your first one below.</div>';
+    return;
+  }
+  el.innerHTML = curMats.map(m => `
+    <div class="mat-row">
+      <span class="drag-h">⣿</span>
+      <span class="mat-emoji">${m.icon||'📄'}</span>
+      <div class="mat-info">
+        <div class="mat-name">${m.name}</div>
+        <div class="mat-sub">${m.material_type.toUpperCase()} · ${m.section||'Materials'}${m.file_size?' · '+m.file_size:''}${m.duration?' · '+m.duration:''}</div>
+      </div>
+      <div class="mat-acts">
+        <button class="btn btn-ghost btn-xs" onclick="openMatModal(${m.id})">EDIT</button>
+        <button class="btn btn-red btn-xs" onclick="delMat(${m.id})">×</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openMatModal(mid) {
+  document.getElementById('mat_id').value = mid||'';
+  if (mid) {
+    const m = curMats.find(x=>x.id===mid); if(!m) return;
+    document.getElementById('matModalTitle').innerHTML = 'edit <span class="cyan">material</span>';
+    document.getElementById('mat_name').value = m.name;
+    document.getElementById('mat_type').value = m.material_type;
+    document.getElementById('mat_icon').value = m.icon;
+    document.getElementById('mat_size').value = m.file_size;
+    document.getElementById('mat_dur').value  = m.duration;
+    document.getElementById('mat_sec').value  = m.section;
+    document.getElementById('mat_url').value  = m.download_url;
+  } else {
+    document.getElementById('matModalTitle').innerHTML = 'add <span class="cyan">material</span>';
+    ['mat_name','mat_icon','mat_size','mat_dur','mat_url'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mat_type').value='pdf';
+    document.getElementById('mat_sec').value='Materials';
+    autoIcon();
+  }
+  document.getElementById('matModal').classList.add('show');
+}
+
+function autoIcon() {
+  const icons = {pdf:'📄',slide:'🗂',video:'🎬',code:'💻',quiz:'📝',link:'🔗'};
+  const t = document.getElementById('mat_type').value;
+  if (!document.getElementById('mat_icon').value) {
+    document.getElementById('mat_icon').value = icons[t]||'📄';
+  }
+}
+
+async function saveMat() {
+  const mid = document.getElementById('mat_id').value;
+  const data = {
+    name:          document.getElementById('mat_name').value.trim(),
+    material_type: document.getElementById('mat_type').value,
+    icon:          document.getElementById('mat_icon').value || '📄',
+    file_size:     document.getElementById('mat_size').value,
+    duration:      document.getElementById('mat_dur').value,
+    section:       document.getElementById('mat_sec').value||'Materials',
+    download_url:  document.getElementById('mat_url').value||'#',
+  };
+  if (!data.name) { toast('Material name required.','err'); return; }
+  if (mid) {
+    const upd = await api('PUT', `/api/admin/workshops/${current.id}/materials/${mid}`, data);
+    const i = curMats.findIndex(m=>m.id===parseInt(mid));
+    if (i>=0) curMats[i]={...curMats[i],...upd};
+  } else {
+    const nm = await api('POST', `/api/admin/workshops/${current.id}/materials`, data);
+    curMats.push(nm);
+  }
+  renderMats(); closeModal('matModal'); toast('Material saved ✓');
+}
+
+async function delMat(mid) {
+  if (!confirm('Delete this material?')) return;
+  await api('DELETE', `/api/admin/workshops/${current.id}/materials/${mid}`);
+  curMats = curMats.filter(m=>m.id!==mid);
+  renderMats(); toast('Material removed.');
+}
+
+// ════════════════════════════════════════════════════════
+// SCHEDULE
+// ════════════════════════════════════════════════════════
+function renderSch() {
+  const el = document.getElementById('schList');
+  el.innerHTML = '';
+  if (!curSch.length) { addSchRow(); return; }
+  curSch.forEach(s => addSchRow(s));
+}
+
+function addSchRow(s) {
+  const el = document.getElementById('schList');
+  const row = document.createElement('div');
+  row.className = 'sch-row';
+  row.innerHTML = `
+    <input type="text" placeholder="09:00 AM" value="${s?s.time_slot:''}" class="sch-t">
+    <input type="text" placeholder="Title — Description (use dash to separate)" value="${s?(s.title+(s.description?' — '+s.description:'')):''}" class="sch-d">
+    <button class="btn btn-red btn-xs" onclick="this.closest('.sch-row').remove()">×</button>
+  `;
+  el.appendChild(row);
+}
+
+async function saveSch() {
+  const items = Array.from(document.querySelectorAll('.sch-row')).map((r,i)=>{
+    const time = r.querySelector('.sch-t').value.trim();
+    const full = r.querySelector('.sch-d').value.trim();
+    const [title,...rest] = full.split('—');
+    return {time_slot:time, title:title.trim(), description:rest.join('—').trim(), sort_order:i+1};
+  }).filter(s=>s.time_slot&&s.title);
+  await api('PUT', `/api/admin/workshops/${current.id}/schedule`, items);
+  curSch = items; toast('Schedule saved ✓');
+}
+
+// ════════════════════════════════════════════════════════
+// ANNOUNCEMENTS
+// ════════════════════════════════════════════════════════
+function renderAnn() {
+  const el = document.getElementById('annList');
+  el.innerHTML = '';
+  curAnn.forEach(a => addAnnRow(a));
+}
+
+function addAnn() { addAnnRow({id:null,icon:'📢',title:'',body:''}); }
+
+function addAnnRow(a) {
+  const el = document.getElementById('annList');
+  const div = document.createElement('div');
+  div.className = 'ann-row';
+  div.dataset.id = a.id||'';
+  div.innerHTML = `
+    <div class="ann-icon-col">
+      <input type="text" placeholder="📢" value="${a.icon||'📢'}" maxlength="4"
+             style="width:52px;text-align:center;padding:10px 6px" class="ann-ico-inp">
+    </div>
+    <div class="ann-fields">
+      <input type="text" placeholder="Announcement title…" value="${a.title||''}" class="ann-ttl-inp">
+      <textarea placeholder="Body text for students…" style="min-height:64px" class="ann-body-inp">${a.body||''}</textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px">
+        <button class="btn btn-red btn-xs" onclick="removeAnn(this,'${a.id||''}')">REMOVE</button>
+        <button class="btn btn-cyan btn-xs" onclick="saveAnn(this.closest('.ann-row'),'${a.id||''}')">SAVE</button>
+      </div>
+    </div>
+  `;
+  el.appendChild(div);
+}
+
+async function saveAnn(row, existingId) {
+  const icon  = row.querySelector('.ann-ico-inp').value||'📢';
+  const title = row.querySelector('.ann-ttl-inp').value.trim();
+  const body  = row.querySelector('.ann-body-inp').value.trim();
+  if (!title||!body) { toast('Title and body required.','err'); return; }
+  if (!existingId||existingId==='null') {
+    const na = await api('POST', `/api/admin/workshops/${current.id}/announcements`, {icon,title,body});
+    row.dataset.id = na.id;
+    curAnn.push(na);
+  }
+  toast('Announcement saved ✓');
+}
+
+async function removeAnn(btn, id) {
+  const row = btn.closest('.ann-row');
+  if (id&&id!=='null') {
+    await api('DELETE', `/api/admin/workshops/${current.id}/announcements/${id}`);
+    curAnn = curAnn.filter(a=>String(a.id)!==String(id));
+  }
+  row.remove();
+}
+
+// ════════════════════════════════════════════════════════
+// REGISTRATIONS
+// ════════════════════════════════════════════════════════
+function renderReg() {
+  const regs = curReg;
+  // Stats
+  const langs   = [...new Set(regs.map(r=>r.preferred_language))].length;
+  const beginners = regs.filter(r=>r.experience_level&&r.experience_level.toLowerCase().includes('beginner')).length;
+  const channels  = [...new Set(regs.map(r=>r.referral_source))].length;
+  document.getElementById('statRow').innerHTML = `
+    <div class="stat-chip"><div class="stat-num">${regs.length}</div><div class="stat-lbl">REGISTRANTS</div></div>
+    <div class="stat-chip"><div class="stat-num">${beginners}</div><div class="stat-lbl">BEGINNERS</div></div>
+    <div class="stat-chip"><div class="stat-num">${langs}</div><div class="stat-lbl">LANGUAGES</div></div>
+    <div class="stat-chip"><div class="stat-num">${channels}</div><div class="stat-lbl">CHANNELS</div></div>
+  `;
+  const tbody = document.getElementById('regBody');
+  const empty = document.getElementById('regEmpty');
+  if (!regs.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = regs.map((r,i)=>`
+    <tr>
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.7rem">${i+1}</td>
+      <td><strong>${r.student_name||'—'}</strong></td>
+      <td style="color:var(--muted);font-size:0.78rem">${r.email||'—'}</td>
+      <td>${r.occupation||'—'}</td>
+      <td style="color:var(--muted);font-size:0.78rem">${r.industry||'—'}</td>
+      <td><span class="reg-tag">${r.experience_level||'—'}</span></td>
+      <td>${r.preferred_language||'—'}</td>
+      <td style="color:var(--muted);font-size:0.76rem">${r.referral_source||'—'}</td>
+      <td style="color:var(--muted);font-family:'Space Mono',monospace;font-size:0.66rem">${r.registered_at?r.registered_at.substring(0,10):'—'}</td>
+    </tr>
+  `).join('');
+}
+
+function exportCSV() {
+  if (!curReg.length) { toast('No registrations to export.','err'); return; }
+  const headers = ['#','Name','Email','Occupation','Industry','Experience','Language','Referral','Date'];
+  const rows = curReg.map((r,i)=>[i+1,r.student_name||'',r.email||'',r.occupation||'',r.industry||'',r.experience_level||'',r.preferred_language||'',r.referral_source||'',r.registered_at?r.registered_at.substring(0,10):'']);
+  const csv = [headers,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`registrations_${current.id}_${new Date().toISOString().substring(0,10)}.csv`;
+  a.click();
+  toast('CSV exported ✓');
+}
+
+// ════════════════════════════════════════════════════════
+// CREATE WORKSHOP
+// ════════════════════════════════════════════════════════
+function openNewModal() { document.getElementById('newWsModal').classList.add('show'); }
+
+async function createWs() {
+  const title = document.getElementById('nw_title').value.trim();
+  const date  = document.getElementById('nw_date').value;
+  if (!title||!date) { toast('Title and date required.','err'); return; }
+  const nw = await api('POST', '/api/admin/workshops', {
+    title, emoji:document.getElementById('nw_emoji').value||'📚',
+    workshop_date:date,
+    location:document.getElementById('nw_loc').value,
+    language:document.getElementById('nw_lang').value,
+    color_theme:'python', published:false, recurrence:'none',
+  });
+  workshops.unshift(nw);
+  closeModal('newWsModal');
+  renderSidebar();
+  await selectWs(nw.id);
+  toast('Workshop created! Fill in the details and publish when ready.');
+}
+
+// ════════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════════
+function switchTab(name) {
+  const names = ['details','materials','schedule','announcements','registrations'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('show'); });
+});
+
+function toast(msg, type='') {
+  const t=document.getElementById('toast');
+  t.className='toast'+(type?' '+type:'');
+  document.getElementById('toastIcon').textContent = type==='err'?'✕':'✓';
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function fmtDate(d) {
+  if (!d) return '';
+  try { return new Date(d+'T00:00:00').toLocaleDateString('en-MY',{day:'numeric',month:'short',year:'numeric'}); }
+  catch { return d; }
+}
+
+init();
+</script>
+</body>
+</html>
