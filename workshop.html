@@ -672,6 +672,16 @@ body.theme-light .toast { background: rgba(255,255,255,0.95); }
 
   <div class="form-wrapper">
 
+    <!-- Returning student -->
+    <div class="glass-card">
+      <div class="card-label">already registered?</div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="login_email" placeholder="you@email.com">
+      </div>
+      <button class="btn-submit" type="button" onclick="accessByEmail()" style="margin-top:8px">ACCESS MY MATERIALS</button>
+    </div>
+
     <!-- Card 1: Personal Info -->
     <div class="glass-card">
       <div class="card-label">01 &mdash; personal info</div>
@@ -1335,6 +1345,29 @@ async function loadMine() {
   if (avatar) avatar.textContent = first[0] ? first[0].toUpperCase() : 'C';
   if (greeting) greeting.textContent = `welcome back, ${first.toLowerCase()}`;
   renderWorkshopCards();
+}
+
+async function accessByEmail() {
+  const email = document.getElementById('login_email').value.trim();
+  if (!email || !email.includes('@')) { toast('Please enter the email you registered with.'); return; }
+  try {
+    portalEmail = email.toLowerCase();
+    portalMine = await portalApi(`/api/workshop/my?email=${encodeURIComponent(portalEmail)}`);
+    if (!portalMine.length) {
+      toast('No workshop found for that email yet.');
+      return;
+    }
+    portalName = portalMine[0].student_name || portalEmail;
+    localStorage.setItem('cc_workshop_email', portalEmail);
+    localStorage.setItem('cc_workshop_name', portalName);
+    const first = (portalName || portalEmail).split(' ')[0];
+    document.getElementById('uAvatar').textContent = first[0] ? first[0].toUpperCase() : 'C';
+    document.getElementById('uGreeting').textContent = `welcome back, ${first.toLowerCase()}`;
+    renderWorkshopCards();
+    showPage('page-workshops');
+  } catch (err) {
+    toast('Could not find that registration.');
+  }
 }
 
 function renderWorkshopCards() {

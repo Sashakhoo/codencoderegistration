@@ -795,6 +795,7 @@ def registered_workshops(conn, email: str):
     return rows(conn.execute(
         """
         SELECT w.*,
+               r.student_name,
                (SELECT COUNT(*) FROM workshop_materials m WHERE m.workshop_id = w.id) AS material_count,
                (SELECT COUNT(*) FROM workshop_progress p WHERE p.workshop_id = w.id AND lower(p.email) = lower(?)) AS completed_count
         FROM workshop_registrations r
