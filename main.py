@@ -41,7 +41,7 @@ ALLOWED_ORIGIN = os.getenv("ALLOWED_ORIGIN", "*")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[ALLOWED_ORIGIN, "http://localhost", "http://127.0.0.1"],
-    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_methods=["POST", "GET", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
