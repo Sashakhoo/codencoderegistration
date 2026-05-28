@@ -158,6 +158,14 @@ def init_workshop_db():
 
         count = conn.execute("SELECT COUNT(*) AS c FROM workshops").fetchone()["c"]
         if count:
+            conn.execute(
+                """
+                UPDATE workshops
+                SET workshop_date = '2026-06-16'
+                WHERE title LIKE 'Foon Yew Evening School%'
+                  AND workshop_date IN ('2026-05-27', '2026-05-26')
+                """
+            )
             return
 
         workshops = [
@@ -165,7 +173,7 @@ def init_workshop_db():
             ("Intro to Machine Learning Workshop", "🤖", "Hands-on ML with sklearn and real Malaysian datasets.", "2026-06-14", "09:00", "17:00", "codencode JB", "physical", "English / BM", "ml", "none", 1),
             ("Vibe Coding with AI Tools", "✨", "Build full-stack apps fast using AI tools, GitHub, and modern deployment workflows.", "2026-06-28", "10:00", "16:00", "Online (Zoom)", "online", "English / 中文", "vibe", "none", 1),
             ("Python for Data Analysis", "📊", "Analyze real datasets with pandas, notebooks, and visualisation tools.", "2026-07-12", "09:00", "17:00", "codencode KL", "physical", "English", "data", "none", 1),
-            ("Foon Yew Evening School — Python Night", "🌙", "Weekly 2-hour Python evening class for Foon Yew students.", "2026-05-27", "19:30", "21:30", "Foon Yew High School, JB", "physical", "中文 / EN", "eve", "weekly", 1),
+            ("Foon Yew Evening School — Python Night", "🌙", "Weekly 2-hour Python evening class for Foon Yew students.", "2026-06-16", "19:30", "21:30", "Foon Yew High School, JB", "physical", "中文 / EN", "eve", "weekly", 1),
         ]
         conn.executemany(
             """
