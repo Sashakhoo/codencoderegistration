@@ -111,7 +111,11 @@ class DbConnection:
         return self.conn.execute(sql, params)
 
     def executemany(self, sql, params):
-        return self.conn.executemany(sql_params(sql), params)
+        if USE_POSTGRES:
+            cur = self.conn.cursor()
+            cur.executemany(sql_params(sql), params)
+            return cur
+        return self.conn.executemany(sql, params)
 
     def executescript(self, sql):
         if USE_POSTGRES:

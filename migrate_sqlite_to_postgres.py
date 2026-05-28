@@ -49,7 +49,8 @@ def main():
                 f"ON CONFLICT (id) DO UPDATE SET {updates}"
             )
             values = [tuple(row[column] for column in columns) for row in rows]
-            pg_conn.executemany(sql, values)
+            with pg_conn.cursor() as cur:
+                cur.executemany(sql, values)
 
             sequence_name = f"{table}_id_seq"
             pg_conn.execute(
