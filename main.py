@@ -57,13 +57,73 @@ QR_B64 = None
 QR_PATH_LOCAL = "/app/duitnow_qr.jpeg"   # put the QR image in your repo root as duitnow_qr.png
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.getenv("WORKSHOP_DB", BASE_DIR / "workshop.db"))
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+USE_POSTGRES = DATABASE_URL.startswith(("postgresql://", "postgres://"))
+
+if USE_POSTGRES:
+    import psycopg
+    from psycopg.rows import dict_row
+
+
+def sql_params(sql: str) -> str:
+    return sql.replace("?", "%s") if USE_POSTGRES else sql
+
+
+class DbCursor:
+    def __init__(self, cur, lastrowid=None):
+        self.cur = cur
+        self.lastrowid = lastrowid
+
+    def fetchone(self):
+        return self.cur.fetchone()
+
+    def fetchall(self):
+        return self.cur.fetchall()
+
+
+class DbConnection:
+    def __init__(self):
+        if USE_POSTGRES:
+            self.conn = psycopg.connect(DATABASE_URL, row_factory=dict_row)
+        else:
+            self.conn = sqlite3.connect(DB_PATH)
+            self.conn.row_factory = sqlite3.Row
+            self.conn.execute("PRAGMA foreign_keys = ON")
+
+    def __enter__(self):
+        self.conn.__enter__()
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return self.conn.__exit__(exc_type, exc, tb)
+
+    def execute(self, sql, params=()):
+        if USE_POSTGRES:
+            sql = sql.replace("INSERT OR IGNORE INTO workshop_progress", "INSERT INTO workshop_progress")
+            sql = sql.replace("VALUES (?, ?, ?)", "VALUES (?, ?, ?) ON CONFLICT(material_id, email) DO NOTHING", 1) if "INSERT INTO workshop_progress" in sql else sql
+            returning_id = sql.lstrip().upper().startswith("INSERT INTO") and " RETURNING " not in sql.upper()
+            cur = self.conn.execute(sql_params(sql + " RETURNING id" if returning_id else sql), params)
+            lastrowid = None
+            if returning_id:
+                item = cur.fetchone()
+                lastrowid = item["id"] if item else None
+            return DbCursor(cur, lastrowid)
+        return self.conn.execute(sql, params)
+
+    def executemany(self, sql, params):
+        return self.conn.executemany(sql_params(sql), params)
+
+    def executescript(self, sql):
+        if USE_POSTGRES:
+            statements = [stmt.strip() for stmt in postgres_schema().split(";") if stmt.strip()]
+            for statement in statements:
+                self.conn.execute(statement)
+            return None
+        return self.conn.executescript(sql)
 
 
 def db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    return DbConnection()
 
 
 def rows(cur):
@@ -73,6 +133,85 @@ def rows(cur):
 def row(cur):
     item = cur.fetchone()
     return dict(item) if item else None
+
+
+def postgres_schema():
+    return """
+        CREATE TABLE IF NOT EXISTS workshops (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            emoji TEXT DEFAULT '📚',
+            description TEXT DEFAULT '',
+            workshop_date TEXT NOT NULL,
+            time_start TEXT DEFAULT '09:00',
+            time_end TEXT DEFAULT '17:00',
+            location TEXT DEFAULT '',
+            location_type TEXT DEFAULT 'physical',
+            language TEXT DEFAULT 'English',
+            color_theme TEXT DEFAULT 'python',
+            recurrence TEXT DEFAULT 'none',
+            published INTEGER DEFAULT 0,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMPTZ
+        );
+
+        CREATE TABLE IF NOT EXISTS workshop_materials (
+            id SERIAL PRIMARY KEY,
+            workshop_id INTEGER NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            material_type TEXT NOT NULL DEFAULT 'pdf',
+            icon TEXT DEFAULT '📄',
+            file_size TEXT DEFAULT '',
+            duration TEXT DEFAULT '',
+            section TEXT DEFAULT 'Materials',
+            download_url TEXT DEFAULT '#',
+            sort_order INTEGER DEFAULT 1
+        );
+
+        CREATE TABLE IF NOT EXISTS workshop_schedule (
+            id SERIAL PRIMARY KEY,
+            workshop_id INTEGER NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+            time_slot TEXT NOT NULL,
+            title TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            sort_order INTEGER DEFAULT 1
+        );
+
+        CREATE TABLE IF NOT EXISTS workshop_announcements (
+            id SERIAL PRIMARY KEY,
+            workshop_id INTEGER NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+            icon TEXT DEFAULT '📢',
+            title TEXT NOT NULL,
+            body TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS workshop_registrations (
+            id SERIAL PRIMARY KEY,
+            workshop_id INTEGER NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+            student_name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            phone TEXT DEFAULT '',
+            age_range TEXT DEFAULT '',
+            occupation TEXT DEFAULT '',
+            industry TEXT DEFAULT '',
+            experience_level TEXT DEFAULT '',
+            motivation TEXT DEFAULT '',
+            preferred_language TEXT DEFAULT 'English',
+            referral_source TEXT DEFAULT '',
+            registered_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (workshop_id, email)
+        );
+
+        CREATE TABLE IF NOT EXISTS workshop_progress (
+            id SERIAL PRIMARY KEY,
+            workshop_id INTEGER NOT NULL REFERENCES workshops(id) ON DELETE CASCADE,
+            material_id INTEGER NOT NULL REFERENCES workshop_materials(id) ON DELETE CASCADE,
+            email TEXT NOT NULL,
+            completed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (material_id, email)
+        );
+    """
 
 
 def init_workshop_db():
